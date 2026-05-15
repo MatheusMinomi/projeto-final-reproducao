@@ -1,262 +1,347 @@
+# BI_REPRODUTIVO.py
+
+```python
 import streamlit as st
 import pandas as pd
 import plotly.express as px
-from pathlib import Path
+from glob import glob
 
 st.set_page_config(
     page_title="BI Reprodutivo",
+    page_icon="🐄",
     layout="wide"
 )
 
-st.title("📊 BI REPRODUTIVO")
-
 # =========================
-# LOCALIZAR ARQUIVOS
+# FUNÇÕES
 # =========================
 
-pasta = Path(".")
+@st.cache_data
 
-arquivos_diag = list(Path("DIAGNOSTICOS").glob("*.xls*"))
-arquivos_grupo = list(Path("GRUPOS").glob("*.xls*"))
-arquivos_medicao = list(Path("MEDICOES").glob("*.xls*"))
-if not arquivos_diag:
-    st.error("Arquivo DIAGNOSTICO não encontrado.")
-    st.stop()
+def carregar_diagnostico():
+    arquivos = glob("DIAGNOSTICOS/*.xls*")
 
-if not arquivos_grupo:
-    st.error("Arquivo GRUPO_MANEJO não encontrado.")
-    st.stop()
+    if not arquivos:
+        st.error("Nenhum arquivo encontrado na pasta DIAGNOSTICOS")
+        st.stop()
 
-diag_path = arquivos_diag[0]
-grupo_path = arquivos_grupo[0]
+    df = pd.read_excel(arquivos[0])
 
-# =========================
-# LER PLANILHAS
-# =========================
+    # Descobrir coluna de status
+    if 'Estado Diagnóstico' in df.columns:
+        col_status = 'Estado Diagnóstico'
+    else:
+        col_status = 'Estado'
 
-diag_df = pd.read_excel(diag_path, header=0)
-st.write(diag_df.columns)
-grupo_df = pd.read_excel(grupo_path)
+    df['STATUS'] = (
+        df[col_status]
+        .fillna('')
+        .astype(str)
+        .str.strip()
+        .str.upper()
+    )
+
+    df['ABORTO'] = (
+        df['Tipo Aborto']
+        .fillna('')
+        .astype(str)
+        .str.upper()
+        .str.contains('ABORTO')
+    )
+
+    df['PRENHA'] = df['STATUS'].str.contains('PREN', na=False)
+    df['VAZIA'] = df['STATUS'].str.contains('VAZ', na=False)
+
+    return df
 
 
-col_estado = "Estado"
-col_aborto = "Tipo Aborto"
+@st.cache_data
 
-# =========================
-# MAPEAR GRUPO MANEJO
-# =========================
-# Detectar colunas do grupo manejo
-grupo_sigla_col = [c for c in grupo_df.columns if 'sigla' in str(c).lower()][0]
+def carregar_medicao():
+    arquivos = glob("MEDICOES/*.xls*")
 
-grupo_manejo_col = [c for c in grupo_df.columns if 'grupo' in str(c).lower()][0]
-mapa = grupo_df[[grupo_sigla_col, grupo_manejo_col]].dropna()
-mapa = mapa.drop_duplicates(subset=[grupo_sigla_col])
-# Detectar coluna SIGLA do diagnóstico
-diag_sigla_col = [c for c in diag_df.columns if 'sigla' in str(c).lower()][0]
-diag_df['Grupo Manejo'] = diag_df[diag_sigla_col].map(
-    mapa.set_index(grupo_sigla_col)[grupo_manejo_col]
-)
+    if not arquivos:
+        st.error("Nenhum arquivo encontrado na pasta MEDICOES")
+        st.stop()
 
-diag_df['Grupo Manejo'] = diag_df['Grupo Manejo'].fillna('SEM GRUPO')
+    df = pd.read_excel(arquivos[0])
 
-# =========================
-# STATUS REPRODUTIVO
-# =========================
-if 'Estado Diagnóstico' in diag_df.columns:
-    col_status = 'Estado Diagnóstico'
-else:
-    col_status = 'Estado'
+    return df
 
-diag_df['STATUS'] = (
-    diag_df[col_status]
-    .fillna('')
-    .astype(str)
-    .str.strip()
-    .str.upper()
-)
 
-diag_df['PRENHA'] = diag_df['STATUS'].str.contains('PREN', na=False)
-diag_df['VAZIA'] = diag_df['STATUS'].str.contains('VAZ', na=False)
+@st.cache_data
 
-diag_df['ABORTO'] = (
-    diag_df[col_aborto]
-    .astype(str)
-    .str.upper()
-    .str.contains('ABORTO', na=False)
-)
+def carregar_grupo():
+    arquivos = glob("GRUPOS/*.xls*")
+
+    if not arquivos:
+        st.error("Nenhum arquivo encontrado na pasta GRUPOS")
+        st.stop()
+
+    df = pd.read_excel(arquivos[0])
+
+    return df
+
 
 # =========================
-# RESUMO GRUPOS
+# CARREGAR DADOS
 # =========================
 
-resumo = diag_df.groupby('Grupo Manejo').agg(
-    PRENHA=('PRENHA', 'sum'),
-    VAZIA=('VAZIA', 'sum'),
-    ABORTO=('ABORTO', 'sum')
-).reset_index()
-# Linha total
-total_row = pd.DataFrame([{
-    'Grupo Manejo': 'TOTAL',
-    'PRENHA': resumo['PRENHA'].sum(),
-    'VAZIA': resumo['VAZIA'].sum(),
-    'ABORTO': resumo['ABORTO'].sum()
-}])
 
-resumo = pd.concat(
-    [resumo, total_row],
-    ignore_index=True
-)
-resumo['TOTAL'] = (
-    resumo['PRENHA'] +
-    resumo['VAZIA'] +
-    resumo['ABORTO']
-)
-
-resumo['TAXA_PRENHEZ_%'] = (
-    resumo['PRENHA'] /
-    (resumo['PRENHA'] + resumo['VAZIA'])
-    * 100
-).round(1)
+diag_df = carregar_diagnostico()
+med_df = carregar_medicao()
+grupo_df = carregar_grupo()
 
 # =========================
-# DASHBOARD
+# PADRONIZAR SIGLA
 # =========================
 
-st.subheader("Resumo Reprodutivo por Grupo")
 
-st.dataframe(resumo, use_container_width=True)
-
-# =========================
-# GRÁFICO PRENHA/VÁZIA/ABORTO
-# =========================
-
-grafico_df = resumo.melt(
-    id_vars='Grupo Manejo',
-    value_vars=['PRENHA', 'VAZIA', 'ABORTO'],
-    var_name='Status',
-    value_name='Quantidade'
-)
-
-fig = px.bar(
-    grafico_df,
-    x='Grupo Manejo',
-    y='Quantidade',
-    color='Status',
-    barmode='group',
-    title='Resultado Reprodutivo por Grupo'
-)
-
-st.plotly_chart(fig, use_container_width=True)
-
-# =========================
-# TAXA PRENHEZ
-# =========================
-
-fig2 = px.bar(
-    resumo,
-    x='Grupo Manejo',
-    y='TAXA_PRENHEZ_%',
-    title='Taxa de Prenhez (%)',
-    text='TAXA_PRENHEZ_%'
-)
-
-st.plotly_chart(fig2, use_container_width=True)
+diag_df['Sigla Usual'] = diag_df['Sigla Usual'].astype(str).str.strip()
+med_df['Sigla Usual'] = med_df['Sigla Usual'].astype(str).str.strip()
+grupo_df['Sigla Usual'] = grupo_df['Sigla Usual'].astype(str).str.strip()
 
 # =========================
 # ECC
 # =========================
 
-if arquivos_medicao:
+med_df = med_df[['Sigla Usual', 'Valor']].copy()
+med_df.rename(columns={'Valor': 'ECC'}, inplace=True)
 
-    med_path = arquivos_medicao[0]
-
-    med_df = pd.read_excel(med_path)
-
-    # Colunas corretas
-    med_sigla_col = "Sigla Usual"
-    ecc_col = "Valor"
-
-    # Padronizar siglas
-    diag_df[diag_sigla_col] = (
-        diag_df[diag_sigla_col]
-        .astype(str)
-        .str.strip()
-        .str.upper()
-    )
-
-    med_df[med_sigla_col] = (
-        med_df[med_sigla_col]
-        .astype(str)
-        .str.strip()
-        .str.upper()
-    )
-
-    # Remover duplicidade
-    med_df = med_df.drop_duplicates(
-        subset=[med_sigla_col]
-    )
-
-    # Merge ECC
-    diag_df = diag_df.merge(
-        med_df[[med_sigla_col, ecc_col]],
-        left_on=diag_sigla_col,
-        right_on=med_sigla_col,
-        how='left'
-    )
-
-    # Renomear
-    diag_df.rename(
-        columns={ecc_col: 'ECC'},
-        inplace=True
-    )
-
-    # Resumo ECC
-    ecc_resumo = diag_df.groupby('ECC').agg(
-        PRENHA=('PRENHA', 'sum'),
-        VAZIA=('VAZIA', 'sum'),
-        ABORTO=('ABORTO', 'sum')
-    ).reset_index()
-
-    # Linha total ECC
-    total_ecc = pd.DataFrame([{
-        'ECC': 'TOTAL',
-        'PRENHA': ecc_resumo['PRENHA'].sum(),
-        'VAZIA': ecc_resumo['VAZIA'].sum(),
-        'ABORTO': ecc_resumo['ABORTO'].sum()
-    }])
-
-    ecc_resumo = pd.concat(
-        [ecc_resumo, total_ecc],
-        ignore_index=True
-    )
-
-    st.subheader("ECC x Resultado Reprodutivo")
-
-    st.dataframe(ecc_resumo, use_container_width=True)
-
-    ecc_melt = ecc_resumo[
-        ecc_resumo['ECC'] != 'TOTAL'
-    ].melt(
-        id_vars='ECC',
-        value_vars=['PRENHA', 'VAZIA', 'ABORTO'],
-        var_name='Status',
-        value_name='Quantidade'
-    )
-
-    fig3 = px.bar(
-        ecc_melt,
-        x='ECC',
-        y='Quantidade',
-        color='Status',
-        barmode='group',
-        title='Resultado por ECC'
-    )
-
-    st.plotly_chart(fig3, use_container_width=True)
 # =========================
-# EXPORTAR EXCEL
+# GRUPO MANEJO
 # =========================
 
-resumo.to_excel("RESUMO_GRUPOS.xlsx", index=False)
+if 'Grupo Manejo' in grupo_df.columns:
+    grupo_col = 'Grupo Manejo'
+else:
+    grupo_col = 'Descrição'
 
-st.success("RESUMO_GRUPOS.xlsx gerado com sucesso.")
+grupo_df = grupo_df[['Sigla Usual', grupo_col]].copy()
+grupo_df.rename(columns={grupo_col: 'Grupo Manejo'}, inplace=True)
+
+# =========================
+# MERGES
+# =========================
+
+
+diag_df = diag_df.merge(
+    med_df,
+    on='Sigla Usual',
+    how='left'
+)
+
+
+diag_df = diag_df.merge(
+    grupo_df,
+    on='Sigla Usual',
+    how='left'
+)
+
+# =========================
+# DASHBOARD
+# =========================
+
+st.title("🐄 BI REPRODUTIVO")
+st.markdown("### Dashboard Interativo de Reprodução")
+
+# =========================
+# FILTROS
+# =========================
+
+st.sidebar.header("Filtros")
+
+lista_grupos = sorted(
+    diag_df['Grupo Manejo']
+    .dropna()
+    .astype(str)
+    .unique()
+)
+
+filtro_grupo = st.sidebar.multiselect(
+    "Grupo Manejo",
+    lista_grupos,
+    default=lista_grupos
+)
+
+lista_ecc = sorted(
+    diag_df['ECC']
+    .dropna()
+    .astype(str)
+    .unique()
+)
+
+filtro_ecc = st.sidebar.multiselect(
+    "ECC",
+    lista_ecc,
+    default=lista_ecc
+)
+
+# =========================
+# FILTRAR
+# =========================
+
+
+df = diag_df.copy()
+
+if filtro_grupo:
+    df = df[df['Grupo Manejo'].astype(str).isin(filtro_grupo)]
+
+if filtro_ecc:
+    df = df[df['ECC'].astype(str).isin(filtro_ecc)]
+
+# =========================
+# KPIs
+# =========================
+
+
+total = len(df)
+prenhas = int(df['PRENHA'].sum())
+vazias = int(df['VAZIA'].sum())
+abortos = int(df['ABORTO'].sum())
+
+if total > 0:
+    taxa = round((prenhas / total) * 100, 1)
+else:
+    taxa = 0
+
+col1, col2, col3, col4, col5 = st.columns(5)
+
+col1.metric("Total", total)
+col2.metric("Prenhas", prenhas)
+col3.metric("Vazias", vazias)
+col4.metric("Abortos", abortos)
+col5.metric("Taxa Prenhez", f"{taxa}%")
+
+# =========================
+# RESUMO POR ECC
+# =========================
+
+
+ecc_resumo = df.groupby('ECC').agg(
+    Prenhas=('PRENHA', 'sum'),
+    Vazias=('VAZIA', 'sum'),
+    Abortos=('ABORTO', 'sum')
+).reset_index()
+
+fig_ecc = px.bar(
+    ecc_resumo,
+    x='ECC',
+    y=['Prenhas', 'Vazias', 'Abortos'],
+    barmode='group',
+    title='Resultados por ECC'
+)
+
+# =========================
+# RESUMO POR GRUPO
+# =========================
+
+
+grupo_resumo = df.groupby('Grupo Manejo').agg(
+    Prenhas=('PRENHA', 'sum'),
+    Vazias=('VAZIA', 'sum'),
+    Abortos=('ABORTO', 'sum')
+).reset_index()
+
+fig_grupo = px.bar(
+    grupo_resumo,
+    x='Grupo Manejo',
+    y=['Prenhas', 'Vazias', 'Abortos'],
+    barmode='group',
+    title='Resultados por Grupo Manejo'
+)
+
+# =========================
+# GRÁFICOS
+# =========================
+
+colA, colB = st.columns(2)
+
+with colA:
+    st.plotly_chart(fig_ecc, use_container_width=True)
+
+with colB:
+    st.plotly_chart(fig_grupo, use_container_width=True)
+
+# =========================
+# TABELA
+# =========================
+
+st.subheader("Tabela Completa")
+
+mostrar = [
+    'Sigla Usual',
+    'STATUS',
+    'ECC',
+    'Grupo Manejo'
+]
+
+st.dataframe(
+    df[mostrar],
+    use_container_width=True,
+    height=500
+)
+
+# =========================
+# DOWNLOAD CSV
+# =========================
+
+csv = df.to_csv(index=False).encode('utf-8')
+
+st.download_button(
+    "⬇ Baixar CSV",
+    csv,
+    "bi_reprodutivo.csv",
+    "text/csv"
+)
+
+# =========================
+# PDF
+# =========================
+
+from reportlab.lib.pagesizes import letter
+from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer
+from reportlab.lib.styles import getSampleStyleSheet
+from io import BytesIO
+
+
+def gerar_pdf(total, prenhas, vazias, abortos, taxa):
+    buffer = BytesIO()
+
+    doc = SimpleDocTemplate(buffer, pagesize=letter)
+    styles = getSampleStyleSheet()
+    elementos = []
+
+    titulo = Paragraph("BI REPRODUTIVO", styles['Title'])
+    elementos.append(titulo)
+    elementos.append(Spacer(1, 20))
+
+    texto = f"""
+    <b>Total de Animais:</b> {total}<br/>
+    <b>Prenhas:</b> {prenhas}<br/>
+    <b>Vazias:</b> {vazias}<br/>
+    <b>Abortos:</b> {abortos}<br/>
+    <b>Taxa de Prenhez:</b> {taxa}%<br/>
+    """
+
+    elementos.append(Paragraph(texto, styles['BodyText']))
+
+    doc.build(elementos)
+
+    pdf = buffer.getvalue()
+    buffer.close()
+
+    return pdf
+
+
+pdf = gerar_pdf(total, prenhas, vazias, abortos, taxa)
+
+st.download_button(
+    label="📄 Baixar PDF",
+    data=pdf,
+    file_name="relatorio_bi_reprodutivo.pdf",
+    mime="application/pdf"
+)
+```
+
+
