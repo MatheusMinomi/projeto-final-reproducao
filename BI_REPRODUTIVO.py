@@ -63,8 +63,8 @@ diag_df['Grupo Manejo'] = diag_df['Grupo Manejo'].fillna('SEM GRUPO')
 # =========================
 diag_df['STATUS'] = diag_df['Estado Diagnóstico'].astype(str).str.upper()
 
-diag_df['PRENHA'] = diag_df['STATUS'].str.contains('PRENHA', na=False)
-diag_df['VAZIA'] = diag_df['STATUS'].str.contains('VAZIA', na=False)
+diag_df['PRENHA'] = diag_df['STATUS'].str.contains('PREN', na=False)
+diag_df['VAZIA'] = diag_df['STATUS'].str.contains('VAZ', na=False)
 
 diag_df['ABORTO'] = (
     diag_df[col_aborto]
