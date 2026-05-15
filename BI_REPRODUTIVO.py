@@ -61,7 +61,18 @@ diag_df['Grupo Manejo'] = diag_df['Grupo Manejo'].fillna('SEM GRUPO')
 # =========================
 # STATUS REPRODUTIVO
 # =========================
-diag_df['STATUS'] = diag_df['Estado Diagnóstico'].astype(str).str.upper()
+if 'Estado Diagnóstico' in diag_df.columns:
+    col_status = 'Estado Diagnóstico'
+else:
+    col_status = 'Estado'
+
+diag_df['STATUS'] = (
+    diag_df[col_status]
+    .fillna('')
+    .astype(str)
+    .str.strip()
+    .str.upper()
+)
 
 diag_df['PRENHA'] = diag_df['STATUS'].str.contains('PREN', na=False)
 diag_df['VAZIA'] = diag_df['STATUS'].str.contains('VAZ', na=False)
