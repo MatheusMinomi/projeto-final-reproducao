@@ -34,7 +34,7 @@ grupo_path = arquivos_grupo[0]
 # LER PLANILHAS
 # =========================
 
-diag_df = pd.read_excel(diag_path)
+diag_df = pd.read_excel(diag_path, header=0)
 st.write(diag_df.columns)
 grupo_df = pd.read_excel(grupo_path)
 
