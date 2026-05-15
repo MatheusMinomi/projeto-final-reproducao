@@ -35,6 +35,7 @@ grupo_path = arquivos_grupo[0]
 # =========================
 
 diag_df = pd.read_excel(diag_path)
+st.write(diag_df.columns)
 grupo_df = pd.read_excel(grupo_path)
 
 
