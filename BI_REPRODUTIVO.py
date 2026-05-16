@@ -176,6 +176,13 @@ df.loc[
 # TRATAR VAZIOS
 # =========================================
 
+# =========================================
+# TRATAR GRUPO MANEJO
+# =========================================
+
+if "Grupo Manejo" not in df.columns:
+    df["Grupo Manejo"] = "SEM GRUPO"
+
 df["Grupo Manejo"] = (
     df["Grupo Manejo"]
     .fillna("SEM GRUPO")
