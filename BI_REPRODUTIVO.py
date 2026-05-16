@@ -605,99 +605,79 @@ st.dataframe(
 )
 
 # =========================================
-# RESUMO POR GRUPO
+# GRÁFICOS
 # =========================================
 
-st.subheader("Resumo por Grupo Manejo")
+col_graf1, col_graf2 = st.columns(2)
 
-resumo_grupo = (
-    df.groupby(
-        ["Grupo Manejo", "STATUS"]
+# -----------------------------------------
+# GRÁFICO GRUPO MANEJO
+# -----------------------------------------
+
+with col_graf1:
+
+    st.subheader("Resumo por Grupo Manejo")
+
+    resumo_grupo = (
+        df.groupby(
+            ["Grupo Manejo", "STATUS"]
+        )
+        .size()
+        .reset_index(name="TOTAL")
     )
-    .size()
-    .reset_index(name="TOTAL")
-)
 
-fig_grupo = px.bar(
-    resumo_grupo,
-    x="Grupo Manejo",
-    y="TOTAL",
-    color="STATUS",
-    barmode="group"
-)
-
-st.plotly_chart(
-    fig_grupo,
-    use_container_width=True
-)
-
-# =========================================
-# TABELA RESUMO POR ECC
-# =========================================
-
-resumo_tabela_ecc = (
-    df.groupby(["ECC", "STATUS"])
-    .size()
-    .unstack(fill_value=0)
-)
-
-# garantir colunas
-for col in ["PRENHA", "VAZIA", "ABORTO"]:
-
-    if col not in resumo_tabela_ecc.columns:
-        resumo_tabela_ecc[col] = 0
-
-# total
-resumo_tabela_ecc["TOTAL"] = (
-    resumo_tabela_ecc["PRENHA"]
-    + resumo_tabela_ecc["VAZIA"]
-    + resumo_tabela_ecc["ABORTO"]
-)
-
-# taxa prenhez
-resumo_tabela_ecc["TAXA PRENHEZ %"] = (
-    resumo_tabela_ecc["PRENHA"]
-    / resumo_tabela_ecc["TOTAL"]
-    * 100
-).round(1)
-
-# organizar
-resumo_tabela_ecc = resumo_tabela_ecc.reset_index()
-
-# exibir
-st.subheader("Resumo Reprodutivo por ECC")
-
-st.dataframe(
-    resumo_tabela_ecc,
-    use_container_width=True
-)
-
-# =========================================
-# RESUMO POR ECC
-# =========================================
-
-st.subheader("Resumo por ECC")
-
-resumo_ecc = (
-    df.groupby(
-        ["ECC", "STATUS"]
+    fig_grupo = px.bar(
+        resumo_grupo,
+        x="Grupo Manejo",
+        y="TOTAL",
+        color="STATUS",
+        barmode="group",
+        color_discrete_map={
+            "PRENHA": "#16a34a",
+            "VAZIA": "#dc2626",
+            "ABORTO": "#f59e0b"
+        }
     )
-    .size()
-    .reset_index(name="TOTAL")
-)
 
-fig_ecc = px.bar(
-    resumo_ecc,
-    x="ECC",
-    y="TOTAL",
-    color="STATUS",
-    barmode="group"
-)
+    st.plotly_chart(
+        fig_grupo,
+        use_container_width=True
+    )
 
-st.plotly_chart(
-    fig_ecc,
-    use_container_width=True
-)
+# -----------------------------------------
+# GRÁFICO ECC
+# -----------------------------------------
+
+with col_graf2:
+
+    st.subheader("Resumo por ECC")
+
+    resumo_ecc = (
+        df.groupby(
+            ["ECC", "STATUS"]
+        )
+        .size()
+        .reset_index(name="TOTAL")
+    )
+
+    fig_ecc = px.bar(
+        resumo_ecc,
+        x="ECC",
+        y="TOTAL",
+        color="STATUS",
+        barmode="group",
+        color_discrete_map={
+            "PRENHA": "#16a34a",
+            "VAZIA": "#dc2626",
+            "ABORTO": "#f59e0b"
+        }
+    )
+
+    st.plotly_chart(
+        fig_ecc,
+        use_container_width=True
+    )
+
 
 # =========================================
 # TABELA COMPLETA
