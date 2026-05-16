@@ -419,15 +419,79 @@ c3.metric(
     vazia
 )
 
-c4.metric(
-    "Taxa Prenhez %",
-    f"{taxa}%",
-    f"{diferenca} p.p. vs 24/25"
-)
+# CARD EXECUTIVO TAXA PRENHEZ
+st.markdown(f"""
+<div style="
+    border:2px solid #9333ea;
+    border-radius:20px;
+    padding:25px;
+    margin-bottom:20px;
+">
 
-st.caption(
-    f"{diferenca_meta} p.p. vs meta 25/26 ({meta_estacao}%)"
-)
+<div style="
+    display:flex;
+    justify-content:space-around;
+    text-align:center;
+">
+
+<div>
+    <h3 style="color:#6b21a8;">
+        Taxa Prenhez %
+    </h3>
+
+    <h1 style="
+        font-size:55px;
+        color:#6b21a8;
+    ">
+        {taxa}%
+    </h1>
+
+    <p style="
+        color:red;
+        font-size:18px;
+    ">
+        {diferenca} p.p. vs 24/25
+    </p>
+</div>
+
+<div>
+    <h3 style="color:#6b21a8;">
+        Meta 25/26
+    </h3>
+
+    <h1 style="
+        font-size:55px;
+        color:#6b21a8;
+    ">
+        {meta_estacao}%
+    </h1>
+
+    <p>
+        meta da estação
+    </p>
+</div>
+
+<div>
+    <h3 style="color:#6b21a8;">
+        Diferença p/ meta
+    </h3>
+
+    <h1 style="
+        font-size:55px;
+        color:red;
+    ">
+        {diferenca_meta} p.p.
+    </h1>
+
+    <p>
+        abaixo da meta
+    </p>
+</div>
+
+</div>
+</div>
+""", unsafe_allow_html=True)
+
 
 
 # =========================================
