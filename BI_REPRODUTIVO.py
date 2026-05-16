@@ -342,6 +342,5 @@ st.download_button(
     file_name="relatorio_bi_reprodutivo.pdf",
     mime="application/pdf"
 )
-```
 
 
