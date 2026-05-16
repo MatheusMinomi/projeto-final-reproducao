@@ -19,7 +19,8 @@ st.subheader("Diagnóstico • ECC • Grupo Manejo")
 # LEITURA DOS ARQUIVOS
 # =========================================
 
-@st.cache_data
+@st.cache_data(ttl=0)
+
 def carregar_dados():
 
     diagnostico = pd.read_excel("DIAGNOSTICOS/DIAGNOSTICO.xls")
@@ -38,7 +39,7 @@ diag_df, grupo_df, med_df = carregar_dados()
 # =========================================
 
 
-
+diag_df.columns = diag_df.columns.str.strip()
 grupo_df.columns = grupo_df.columns.str.strip()
 med_df.columns = med_df.columns.str.strip()
 
@@ -104,7 +105,56 @@ grupo_df.rename(
 )
 
 
+# =========================================
+# PREPARAR ECC
+# =========================================
 
+# localizar coluna do ECC
+if "Valor" in med_df.columns:
+    col_ecc = "Valor"
+
+else:
+
+    # pega segunda coluna automaticamente
+    col_ecc = med_df.columns[1]
+
+med_df = med_df[
+    ["Sigla Usual", col_ecc]
+].copy()
+
+# limpar sigla
+med_df["Sigla Usual"] = (
+    med_df["Sigla Usual"]
+    .fillna("")
+    .astype(str)
+    .str.strip()
+    .str.upper()
+    .str.replace(".0", "", regex=False)
+)
+
+# limpar ECC
+med_df[col_ecc] = (
+    med_df[col_ecc]
+    .fillna("")
+    .astype(str)
+    .str.strip()
+)
+
+# remover vazios
+med_df = med_df[
+    med_df[col_ecc] != ""
+]
+
+# remover duplicados
+med_df = med_df.drop_duplicates(
+    subset=["Sigla Usual"]
+)
+
+# renomear
+med_df.rename(
+    columns={col_ecc: "ECC"},
+    inplace=True
+)
 
 # =========================================
 # MERGES
@@ -244,56 +294,7 @@ df["Grupo Manejo"] = (
     .astype(str)
 )
 
-# =========================================
-# PREPARAR ECC
-# =========================================
 
-# localizar coluna do ECC
-if "Valor" in med_df.columns:
-    col_ecc = "Valor"
-
-else:
-
-    # pega segunda coluna automaticamente
-    col_ecc = med_df.columns[1]
-
-med_df = med_df[
-    ["Sigla Usual", col_ecc]
-].copy()
-
-# limpar sigla
-med_df["Sigla Usual"] = (
-    med_df["Sigla Usual"]
-    .fillna("")
-    .astype(str)
-    .str.strip()
-    .str.upper()
-    .str.replace(".0", "", regex=False)
-)
-
-# limpar ECC
-med_df[col_ecc] = (
-    med_df[col_ecc]
-    .fillna("")
-    .astype(str)
-    .str.strip()
-)
-
-# remover vazios
-med_df = med_df[
-    med_df[col_ecc] != ""
-]
-
-# remover duplicados
-med_df = med_df.drop_duplicates(
-    subset=["Sigla Usual"]
-)
-
-# renomear
-med_df.rename(
-    columns={col_ecc: "ECC"},
-    inplace=True
-)
 
 
 
@@ -383,6 +384,47 @@ c1.metric("Total", total)
 c2.metric("Prenhas", prenha)
 c3.metric("Vazias", vazia)
 c4.metric("Taxa Prenhez %", taxa)
+
+# =========================================
+# TABELA RESUMO POR GRUPO
+# =========================================
+
+resumo_manejo = (
+    df.groupby(["Grupo Manejo", "STATUS"])
+    .size()
+    .unstack(fill_value=0)
+)
+
+# garantir colunas
+for col in ["PRENHA", "VAZIA", "ABORTO"]:
+
+    if col not in resumo_manejo.columns:
+        resumo_manejo[col] = 0
+
+# total
+resumo_manejo["TOTAL"] = (
+    resumo_manejo["PRENHA"]
+    + resumo_manejo["VAZIA"]
+    + resumo_manejo["ABORTO"]
+)
+
+# taxa prenhez
+resumo_manejo["TAXA PRENHEZ %"] = (
+    resumo_manejo["PRENHA"]
+    / resumo_manejo["TOTAL"]
+    * 100
+).round(1)
+
+# organizar
+resumo_manejo = resumo_manejo.reset_index()
+
+# exibir
+st.subheader("Resumo Reprodutivo por Grupo Manejo")
+
+st.dataframe(
+    resumo_manejo,
+    use_container_width=True
+)
 
 # =========================================
 # RESUMO POR GRUPO
