@@ -91,7 +91,7 @@ def carregar_grupo():
 diag_df = carregar_diagnostico()
 med_df = carregar_medicao()
 grupo_df = carregar_grupo()
-```python
+
 # =========================
 # PADRONIZAR SIGLA USUAL
 # =========================
@@ -116,7 +116,6 @@ med_df['Sigla Usual'] = (
     .str.strip()
     .str.upper()
 )
-```
 
 # =========================
 # PADRONIZAR SIGLA
