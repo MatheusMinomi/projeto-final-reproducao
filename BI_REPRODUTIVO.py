@@ -70,12 +70,27 @@ med_df["Sigla Usual"] = (
 # PREPARAR GRUPO MANEJO
 # =========================================
 
+# =========================================
+# PREPARAR GRUPO MANEJO
+# =========================================
+
+# localizar nome correto da coluna
+if "Descrição" in grupo_df.columns:
+    col_grupo = "Descrição"
+
+elif "Grupo Manejo" in grupo_df.columns:
+    col_grupo = "Grupo Manejo"
+
+else:
+    st.error(f"Coluna de grupo não encontrada. Colunas existentes: {grupo_df.columns.tolist()}")
+    st.stop()
+
 grupo_df = grupo_df[
-    ["Sigla Usual", "Descrição"]
+    ["Sigla Usual", col_grupo]
 ].copy()
 
 grupo_df.rename(
-    columns={"Descrição": "Grupo Manejo"},
+    columns={col_grupo: "Grupo Manejo"},
     inplace=True
 )
 
