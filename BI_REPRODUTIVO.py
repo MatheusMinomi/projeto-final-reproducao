@@ -123,14 +123,12 @@ df = df.merge(
     how="left"
 )
 
+```python
 # =========================================
 # STATUS REPRODUTIVO
 # =========================================
 
-# =========================================
-# IDENTIFICAR COLUNA ESTADO
-# =========================================
-
+# identificar coluna correta
 if "Estado" in df.columns:
     col_estado = "Estado"
 
@@ -141,36 +139,51 @@ else:
     st.error(f"Coluna de estado não encontrada. Colunas existentes: {df.columns.tolist()}")
     st.stop()
 
+# limpar estado
 df[col_estado] = (
     df[col_estado]
     .fillna("")
     .astype(str)
+    .str.strip()
     .str.upper()
 )
 
+# limpar aborto
 df["Tipo Aborto"] = (
     df["Tipo Aborto"]
     .fillna("")
     .astype(str)
+    .str.strip()
     .str.upper()
 )
 
-df["STATUS"] = "OUTROS"
+# criar status
+df["STATUS"] = "SEM STATUS"
 
+# PRENHA
 df.loc[
     df[col_estado].str.contains("PREN", na=False),
     "STATUS"
 ] = "PRENHA"
 
+# VAZIA
 df.loc[
     df[col_estado].str.contains("VAZ", na=False),
     "STATUS"
 ] = "VAZIA"
 
+# ABORTO
 df.loc[
     df["Tipo Aborto"].str.contains("ABORT", na=False),
     "STATUS"
 ] = "ABORTO"
+
+# remover sem status
+df = df[
+    df["STATUS"] != "SEM STATUS"
+]
+```
+
 
 # =========================================
 # TRATAR VAZIOS
