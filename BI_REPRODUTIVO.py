@@ -412,7 +412,9 @@ with col1:
     <div style="
         background-color:#f8fafc;
         border-left:8px solid #2563eb;
-        padding:25px;
+        padding:18px;
+
+;
         border-radius:18px;
         box-shadow:0 2px 8px rgba(0,0,0,0.08);
     ">
@@ -422,7 +424,7 @@ with col1:
     </h3>
 
     <h1 style="
-        font-size:50px;
+        font-size:42px;
         color:#1e293b;
     ">
         {total}
@@ -499,7 +501,7 @@ with col3:
 st.markdown(f"""
 <div style="border:2px solid #9333ea;
 border-radius:20px;
-padding:30px;
+padding:20px;
 margin-bottom:20px;">
 
 <div style="display:flex;
@@ -528,7 +530,7 @@ font-size:18px;">
 Meta 25/26
 </h2>
 
-<div style="font-size:55px;
+<div style="font-size:45px;
 font-weight:bold;
 color:#6b21a8;">
 {meta_estacao}%
