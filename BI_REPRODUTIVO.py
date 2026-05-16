@@ -91,6 +91,32 @@ def carregar_grupo():
 diag_df = carregar_diagnostico()
 med_df = carregar_medicao()
 grupo_df = carregar_grupo()
+```python
+# =========================
+# PADRONIZAR SIGLA USUAL
+# =========================
+
+diag_df['Sigla Usual'] = (
+    diag_df['Sigla Usual']
+    .astype(str)
+    .str.strip()
+    .str.upper()
+)
+
+grupo_df['Sigla Usual'] = (
+    grupo_df['Sigla Usual']
+    .astype(str)
+    .str.strip()
+    .str.upper()
+)
+
+med_df['Sigla Usual'] = (
+    med_df['Sigla Usual']
+    .astype(str)
+    .str.strip()
+    .str.upper()
+)
+```
 
 # =========================
 # PADRONIZAR SIGLA
