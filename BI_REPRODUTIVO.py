@@ -356,6 +356,13 @@ df = df[
 ]
 
 # =========================================
+# COMPARAÇÃO SAFRA ANTERIOR
+# =========================================
+
+taxa_estacao_passada = 81.25
+
+
+# =========================================
 # KPIs
 # =========================================
 
@@ -383,7 +390,16 @@ c1, c2, c3, c4 = st.columns(4)
 c1.metric("Total", total)
 c2.metric("Prenhas", prenha)
 c3.metric("Vazias", vazia)
-c4.metric("Taxa Prenhez %", taxa)
+diferenca = round(
+    taxa - taxa_estacao_passada,
+    2
+)
+
+c4.metric(
+    "Taxa Prenhez %",
+    f"{taxa}%",
+    f"{diferenca} p.p. vs 24/25"
+)
 
 # =========================================
 # TABELA RESUMO POR GRUPO
