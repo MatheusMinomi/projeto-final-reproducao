@@ -150,9 +150,8 @@ st.sidebar.header("Filtros")
 
 # preencher vazios antes dos filtros
 
-diag_df['Grupo Manejo'] = diag_df['Grupo Manejo'].fillna('SEM GRUPO')
-diag_df['ECC'] = diag_df['ECC'].fillna('SEM ECC')
-
+df['Grupo Manejo'] = df['Grupo Manejo'].fillna('SEM GRUPO')
+df['ECC'] = df['ECC'].fillna('SEM ECC')
 lista_grupos = sorted(
     diag_df['Grupo Manejo']
     .astype(str)
