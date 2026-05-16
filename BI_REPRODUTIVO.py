@@ -45,26 +45,29 @@ med_df.columns = med_df.columns.str.strip()
 # PADRONIZAR SIGLA
 # =========================================
 
-diag_df["Sigla Usual"] = (
+def limpar_sigla(coluna):
+
+    return (
+        coluna
+        .fillna("")
+        .astype(str)
+        .str.strip()
+        .str.upper()
+        .str.replace(".0", "", regex=False)
+    )
+
+diag_df["Sigla Usual"] = limpar_sigla(
     diag_df["Sigla Usual"]
-    .astype(str)
-    .str.strip()
-    .str.upper()
 )
 
-grupo_df["Sigla Usual"] = (
+grupo_df["Sigla Usual"] = limpar_sigla(
     grupo_df["Sigla Usual"]
-    .astype(str)
-    .str.strip()
-    .str.upper()
 )
 
-med_df["Sigla Usual"] = (
+med_df["Sigla Usual"] = limpar_sigla(
     med_df["Sigla Usual"]
-    .astype(str)
-    .str.strip()
-    .str.upper()
 )
+
 
 
 
