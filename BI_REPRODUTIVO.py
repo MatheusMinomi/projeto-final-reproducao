@@ -144,24 +144,35 @@ if 'Valor' in med_df.columns:
 # GRUPO MANEJO
 # ====================================
 
-# detectar nome correto da coluna
-col_grupo = None
-
+# localizar coluna grupo
 if 'Grupo Manejo' in grupo_df.columns:
     col_grupo = 'Grupo Manejo'
 
 elif 'Descrição' in grupo_df.columns:
     col_grupo = 'Descrição'
 
-# merge grupo
-if col_grupo is not None:
+else:
+    col_grupo = None
 
-    grupo_df = grupo_df[
-        ['Sigla Usual', col_grupo]
-    ].drop_duplicates()
+# padronizar siglas
+grupo_df['Sigla Usual'] = (
+    grupo_df['Sigla Usual']
+    .fillna('')
+    .astype(str)
+    .str.strip()
+    .str.upper()
+)
+
+# remover duplicidade
+grupo_df = grupo_df.drop_duplicates(
+    subset=['Sigla Usual']
+)
+
+# merge
+if col_grupo:
 
     diag_df = diag_df.merge(
-        grupo_df,
+        grupo_df[['Sigla Usual', col_grupo]],
         on='Sigla Usual',
         how='left'
     )
