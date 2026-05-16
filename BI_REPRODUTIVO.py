@@ -1,6 +1,3 @@
-# BI_REPRODUTIVO.py
-
-
 import streamlit as st
 import pandas as pd
 import plotly.express as px
@@ -91,31 +88,6 @@ def carregar_grupo():
 diag_df = carregar_diagnostico()
 med_df = carregar_medicao()
 grupo_df = carregar_grupo()
-
-# =========================
-# PADRONIZAR SIGLA USUAL
-# =========================
-
-diag_df['Sigla Usual'] = (
-    diag_df['Sigla Usual']
-    .astype(str)
-    .str.strip()
-    .str.upper()
-)
-
-grupo_df['Sigla Usual'] = (
-    grupo_df['Sigla Usual']
-    .astype(str)
-    .str.strip()
-    .str.upper()
-)
-
-med_df['Sigla Usual'] = (
-    med_df['Sigla Usual']
-    .astype(str)
-    .str.strip()
-    .str.upper()
-)
 
 # =========================
 # PADRONIZAR SIGLA
@@ -367,5 +339,3 @@ st.download_button(
     file_name="relatorio_bi_reprodutivo.pdf",
     mime="application/pdf"
 )
-
-
