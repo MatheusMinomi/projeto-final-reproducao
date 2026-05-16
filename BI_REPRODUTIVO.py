@@ -41,6 +41,7 @@ diag_df.columns = diag_df.columns.str.strip()
 grupo_df.columns = grupo_df.columns.str.strip()
 med_df.columns = med_df.columns.str.strip()
 
+
 # =========================================
 # PADRONIZAR SIGLA
 # =========================================
@@ -48,12 +49,13 @@ med_df.columns = med_df.columns.str.strip()
 def limpar_sigla(coluna):
 
     return (
-        coluna
-        .fillna("")
+        pd.to_numeric(
+            coluna,
+            errors="coerce"
+        )
+        .fillna(0)
+        .astype(int)
         .astype(str)
-        .str.strip()
-        .str.upper()
-        .str.replace(".0", "", regex=False)
     )
 
 diag_df["Sigla Usual"] = limpar_sigla(
@@ -67,6 +69,7 @@ grupo_df["Sigla Usual"] = limpar_sigla(
 med_df["Sigla Usual"] = limpar_sigla(
     med_df["Sigla Usual"]
 )
+
 
 
 
