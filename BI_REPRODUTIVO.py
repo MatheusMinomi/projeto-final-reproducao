@@ -385,14 +385,38 @@ taxa = round(
     1
 ) if total > 0 else 0
 
-c1, c2, c3, c4 = st.columns(4)
+# comparação safra passada
+taxa_estacao_passada = 81.25
 
-c1.metric("Total", total)
-c2.metric("Prenhas", prenha)
-c3.metric("Vazias", vazia)
 diferenca = round(
     taxa - taxa_estacao_passada,
     2
+)
+
+# meta estação atual
+meta_estacao = 82.69
+
+diferenca_meta = round(
+    taxa - meta_estacao,
+    2
+)
+
+# colunas KPI
+c1, c2, c3, c4 = st.columns(4)
+
+c1.metric(
+    "Total",
+    total
+)
+
+c2.metric(
+    "Prenhas",
+    prenha
+)
+
+c3.metric(
+    "Vazias",
+    vazia
 )
 
 c4.metric(
@@ -400,6 +424,11 @@ c4.metric(
     f"{taxa}%",
     f"{diferenca} p.p. vs 24/25"
 )
+
+st.caption(
+    f"{diferenca_meta} p.p. vs meta 25/26 ({meta_estacao}%)"
+)
+
 
 # =========================================
 # TABELA RESUMO POR GRUPO
