@@ -148,9 +148,13 @@ st.markdown("### Dashboard Interativo de Reprodução")
 
 st.sidebar.header("Filtros")
 
+# preencher vazios antes dos filtros
+
+diag_df['Grupo Manejo'] = diag_df['Grupo Manejo'].fillna('SEM GRUPO')
+diag_df['ECC'] = diag_df['ECC'].fillna('SEM ECC')
+
 lista_grupos = sorted(
     diag_df['Grupo Manejo']
-    .dropna()
     .astype(str)
     .unique()
 )
@@ -163,7 +167,6 @@ filtro_grupo = st.sidebar.multiselect(
 
 lista_ecc = sorted(
     diag_df['ECC']
-    .dropna()
     .astype(str)
     .unique()
 )
