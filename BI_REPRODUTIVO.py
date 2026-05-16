@@ -111,10 +111,21 @@ df = diag_df.merge(
     how="left"
 )
 
+df = df.merge(
+    med_df,
+    on="Sigla Usual",
+    how="left"
+)
+
+# garantir ECC
+if "ECC" not in df.columns:
+    df["ECC"] = "SEM ECC"
+
 # remover animais duplicados
 df = df.drop_duplicates(
     subset=["Sigla Usual"]
 )
+
 
 
 # =========================================
@@ -195,10 +206,6 @@ df["Grupo Manejo"] = (
 )
 
 # =========================================
-# TRATAR ECC
-# =========================================
-
-# =========================================
 # PREPARAR ECC
 # =========================================
 
@@ -239,6 +246,7 @@ med_df.rename(
     columns={"Valor": "ECC"},
     inplace=True
 )
+
 
 
 
