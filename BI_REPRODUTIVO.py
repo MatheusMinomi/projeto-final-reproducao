@@ -422,79 +422,68 @@ c3.metric(
 # CARD EXECUTIVO TAXA PRENHEZ
 
 st.markdown(f"""
-<div style='
-    border:2px solid #9333ea;
-    border-radius:20px;
-    padding:30px;
-    margin-bottom:20px;
-'>
+<div style="border:2px solid #9333ea;
+border-radius:20px;
+padding:30px;
+margin-bottom:20px;">
 
-<div style='
-    display:flex;
-    justify-content:space-around;
-    text-align:center;
-'>
+<div style="display:flex;
+justify-content:space-around;
+text-align:center;">
 
 <div>
-    <h2 style='color:#6b21a8;'>
-        Taxa Prenhez %
-    </h2>
+<h2 style="color:#6b21a8;">
+Taxa Prenhez %
+</h2>
 
-    <div style='
-        font-size:55px;
-        font-weight:bold;
-        color:#6b21a8;
-    '>
-        {taxa}%
-    </div>
+<div style="font-size:55px;
+font-weight:bold;
+color:#6b21a8;">
+{taxa}%
+</div>
 
-    <p style='
-        color:red;
-        font-size:18px;
-    '>
-        {diferenca} p.p. vs 24/25
-    </p>
+<p style="color:red;
+font-size:18px;">
+{diferenca} p.p. vs 24/25
+</p>
 </div>
 
 <div>
-    <h2 style='color:#6b21a8;'>
-        Meta 25/26
-    </h2>
+<h2 style="color:#6b21a8;">
+Meta 25/26
+</h2>
 
-    <div style='
-        font-size:55px;
-        font-weight:bold;
-        color:#6b21a8;
-    '>
-        {meta_estacao}%
-    </div>
+<div style="font-size:55px;
+font-weight:bold;
+color:#6b21a8;">
+{meta_estacao}%
+</div>
 
-    <p>
-        meta da estação
-    </p>
+<p>
+meta da estação
+</p>
 </div>
 
 <div>
-    <h2 style='color:#6b21a8;'>
-        Diferença p/ meta
-    </h2>
+<h2 style="color:#6b21a8;">
+Diferença p/ meta
+</h2>
 
-    <div style='
-        font-size:55px;
-        font-weight:bold;
-        color:red;
-    '>
-        {diferenca_meta} p.p.
-    </div>
+<div style="font-size:55px;
+font-weight:bold;
+color:red;">
+{diferenca_meta} p.p.
+</div>
 
-    <p>
-        abaixo da meta
-    </p>
+<p>
+abaixo da meta
+</p>
 </div>
 
 </div>
 </div>
 """, unsafe_allow_html=True)
+
 
 
 
