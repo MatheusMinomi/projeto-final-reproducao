@@ -127,8 +127,22 @@ df = df.merge(
 # STATUS REPRODUTIVO
 # =========================================
 
-df["Estado"] = (
-    df["Estado"]
+# =========================================
+# IDENTIFICAR COLUNA ESTADO
+# =========================================
+
+if "Estado" in df.columns:
+    col_estado = "Estado"
+
+elif "Estado Diagnóstico" in df.columns:
+    col_estado = "Estado Diagnóstico"
+
+else:
+    st.error(f"Coluna de estado não encontrada. Colunas existentes: {df.columns.tolist()}")
+    st.stop()
+
+df[col_estado] = (
+    df[col_estado]
     .fillna("")
     .astype(str)
     .str.upper()
@@ -144,12 +158,12 @@ df["Tipo Aborto"] = (
 df["STATUS"] = "OUTROS"
 
 df.loc[
-    df["Estado"].str.contains("PREN", na=False),
+    df[col_estado].str.contains("PREN", na=False),
     "STATUS"
 ] = "PRENHA"
 
 df.loc[
-    df["Estado"].str.contains("VAZ", na=False),
+    df[col_estado].str.contains("VAZ", na=False),
     "STATUS"
 ] = "VAZIA"
 
