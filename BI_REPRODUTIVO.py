@@ -101,30 +101,65 @@ grupo_df.rename(
 
 
 
+
 # =========================================
 # MERGES
 # =========================================
 
+# remover duplicados antes do merge
+diag_df = diag_df.drop_duplicates(
+    subset=["Sigla Usual"]
+)
+
+grupo_df = grupo_df.drop_duplicates(
+    subset=["Sigla Usual"]
+)
+
+med_df = med_df.drop_duplicates(
+    subset=["Sigla Usual"]
+)
+
+# merge grupo
 df = diag_df.merge(
     grupo_df,
     on="Sigla Usual",
     how="left"
 )
 
+# merge ecc
 df = df.merge(
     med_df,
     on="Sigla Usual",
     how="left"
 )
 
+# garantir grupo
+if "Grupo Manejo" not in df.columns:
+    df["Grupo Manejo"] = "SEM GRUPO"
+
 # garantir ECC
 if "ECC" not in df.columns:
     df["ECC"] = "SEM ECC"
 
-# remover animais duplicados
+# tratar grupo
+df["Grupo Manejo"] = (
+    df["Grupo Manejo"]
+    .fillna("SEM GRUPO")
+    .astype(str)
+)
+
+# tratar ECC
+df["ECC"] = (
+    df["ECC"]
+    .fillna("SEM ECC")
+    .astype(str)
+)
+
+# remover duplicados finais
 df = df.drop_duplicates(
     subset=["Sigla Usual"]
 )
+
 
 
 
