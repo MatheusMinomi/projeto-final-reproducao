@@ -37,7 +37,9 @@ diag_df, grupo_df, med_df = carregar_dados()
 # PADRONIZAR COLUNAS
 # =========================================
 
-diag_df.columns = diag_df.columns.str.strip()
+st.write("COLUNAS MEDICAO:")
+st.write(med_df.columns.tolist())
+
 grupo_df.columns = grupo_df.columns.str.strip()
 med_df.columns = med_df.columns.str.strip()
 
@@ -49,13 +51,12 @@ med_df.columns = med_df.columns.str.strip()
 def limpar_sigla(coluna):
 
     return (
-        pd.to_numeric(
-            coluna,
-            errors="coerce"
-        )
-        .fillna(0)
-        .astype(int)
+        coluna
+        .fillna("")
         .astype(str)
+        .str.replace(".0", "", regex=False)
+        .str.replace(" ", "", regex=False)
+        .str.strip()
     )
 
 diag_df["Sigla Usual"] = limpar_sigla(
@@ -69,6 +70,7 @@ grupo_df["Sigla Usual"] = limpar_sigla(
 med_df["Sigla Usual"] = limpar_sigla(
     med_df["Sigla Usual"]
 )
+
 
 
 
