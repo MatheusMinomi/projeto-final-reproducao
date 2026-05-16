@@ -404,20 +404,95 @@ diferenca_meta = round(
 # colunas KPI
 c1, c2, c3, c4 = st.columns(4)
 
-c1.metric(
-    "Total",
-    total
-)
+col1, col2, col3 = st.columns(3)
 
-c2.metric(
-    "Prenhas",
-    prenha
-)
+with col1:
 
-c3.metric(
-    "Vazias",
-    vazia
-)
+    st.markdown(f"""
+    <div style="
+        background-color:#f8fafc;
+        border-left:8px solid #2563eb;
+        padding:25px;
+        border-radius:18px;
+        box-shadow:0 2px 8px rgba(0,0,0,0.08);
+    ">
+
+    <h3 style="color:#2563eb;">
+        TOTAL
+    </h3>
+
+    <h1 style="
+        font-size:50px;
+        color:#1e293b;
+    ">
+        {total}
+    </h1>
+
+    <p>
+        animais diagnosticados
+    </p>
+
+    </div>
+    """, unsafe_allow_html=True)
+
+with col2:
+
+    st.markdown(f"""
+    <div style="
+        background-color:#f0fdf4;
+        border-left:8px solid #16a34a;
+        padding:25px;
+        border-radius:18px;
+        box-shadow:0 2px 8px rgba(0,0,0,0.08);
+    ">
+
+    <h3 style="color:#16a34a;">
+        PRENHAS
+    </h3>
+
+    <h1 style="
+        font-size:50px;
+        color:#166534;
+    ">
+        {prenha}
+    </h1>
+
+    <p>
+        diagnósticos positivos
+    </p>
+
+    </div>
+    """, unsafe_allow_html=True)
+
+with col3:
+
+    st.markdown(f"""
+    <div style="
+        background-color:#fef2f2;
+        border-left:8px solid #dc2626;
+        padding:25px;
+        border-radius:18px;
+        box-shadow:0 2px 8px rgba(0,0,0,0.08);
+    ">
+
+    <h3 style="color:#dc2626;">
+        VAZIAS
+    </h3>
+
+    <h1 style="
+        font-size:50px;
+        color:#991b1b;
+    ">
+        {vazia}
+    </h1>
+
+    <p>
+        diagnósticos negativos
+    </p>
+
+    </div>
+    """, unsafe_allow_html=True)
+
 
 # CARD EXECUTIVO TAXA PRENHEZ
 
