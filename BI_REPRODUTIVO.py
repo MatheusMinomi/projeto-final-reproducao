@@ -66,15 +66,12 @@ med_df["Sigla Usual"] = (
     .str.upper()
 )
 
-# =========================================
-# PREPARAR GRUPO MANEJO
-# =========================================
+
 
 # =========================================
 # PREPARAR GRUPO MANEJO
 # =========================================
 
-# localizar nome correto da coluna
 if "Descrição" in grupo_df.columns:
     col_grupo = "Descrição"
 
@@ -89,23 +86,17 @@ grupo_df = grupo_df[
     ["Sigla Usual", col_grupo]
 ].copy()
 
+# remover duplicados
+grupo_df = grupo_df.drop_duplicates(
+    subset=["Sigla Usual"]
+)
+
 grupo_df.rename(
     columns={col_grupo: "Grupo Manejo"},
     inplace=True
 )
 
-# =========================================
-# PREPARAR ECC
-# =========================================
 
-med_df = med_df[
-    ["Sigla Usual", "Valor"]
-].copy()
-
-med_df.rename(
-    columns={"Valor": "ECC"},
-    inplace=True
-)
 
 # =========================================
 # MERGES
