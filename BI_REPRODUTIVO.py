@@ -24,7 +24,7 @@ st.subheader("Dashboard Interativo de Reprodução")
 def carregar_arquivos():
 
     # -------------------------
-    # DIAGNOSTICO
+    # DIAGNOSTICOS
     # -------------------------
 
     arquivos_diag = glob("DIAGNOSTICOS/*.xls*")
@@ -37,7 +37,7 @@ def carregar_arquivos():
 
         df.columns = df.columns.str.strip()
 
-        # corrigir nome coluna estado
+        # Corrigir nome da coluna
         if 'Estado Diagnóstico' in df.columns:
             df.rename(
                 columns={'Estado Diagnóstico': 'Estado'},
@@ -49,7 +49,7 @@ def carregar_arquivos():
     diag_df = pd.concat(lista_diag, ignore_index=True)
 
     # -------------------------
-    # MEDICAO
+    # MEDICOES
     # -------------------------
 
     arquivos_med = glob("MEDICOES/*.xls*")
@@ -67,7 +67,7 @@ def carregar_arquivos():
     med_df = pd.concat(lista_med, ignore_index=True)
 
     # -------------------------
-    # GRUPO MANEJO
+    # GRUPOS
     # -------------------------
 
     arquivos_grupo = glob("GRUPOS/*.xls*")
@@ -79,6 +79,13 @@ def carregar_arquivos():
         df = pd.read_excel(arq)
 
         df.columns = df.columns.str.strip()
+
+        # Corrigir nome da coluna grupo
+        if 'Descrição' in df.columns:
+            df.rename(
+                columns={'Descrição': 'Grupo Manejo'},
+                inplace=True
+            )
 
         lista_grupo.append(df)
 
@@ -125,9 +132,7 @@ if 'Valor' in med_df.columns:
 
     med_df = med_df[
         ['Sigla Usual', 'Valor']
-    ].drop_duplicates(
-        subset=['Sigla Usual']
-    )
+    ]
 
     diag_df = diag_df.merge(
         med_df,
@@ -144,7 +149,6 @@ if 'Valor' in med_df.columns:
 # GRUPO MANEJO
 # ====================================
 
-# localizar coluna correta
 if 'Grupo Manejo' in grupo_df.columns:
     col_grupo = 'Grupo Manejo'
 
@@ -154,14 +158,11 @@ elif 'Descrição' in grupo_df.columns:
 else:
     col_grupo = None
 
-# merge grupo
 if col_grupo:
 
     grupo_df = grupo_df[
         ['Sigla Usual', col_grupo]
-    ].drop_duplicates(
-        subset=['Sigla Usual']
-    )
+    ]
 
     diag_df = diag_df.merge(
         grupo_df,
@@ -261,7 +262,7 @@ filtro_ecc = st.sidebar.multiselect(
     default=lista_ecc
 )
 
-# aplicar filtros
+# Aplicar filtros
 if filtro_grupo:
     df = df[
         df['Grupo Manejo'].isin(filtro_grupo)
@@ -297,7 +298,7 @@ c3.metric("Vazias", vazia)
 c4.metric("Taxa Prenhez %", taxa)
 
 # ====================================
-# RESUMO GRUPO
+# RESUMO POR GRUPO
 # ====================================
 
 st.subheader("Resumo por Grupo Manejo")
@@ -323,7 +324,7 @@ st.dataframe(
     use_container_width=True
 )
 
-# gráfico grupo
+# Gráfico grupo
 
 fig_grupo = px.bar(
     resumo_grupo,
@@ -339,7 +340,7 @@ st.plotly_chart(
 )
 
 # ====================================
-# RESUMO ECC
+# RESUMO POR ECC
 # ====================================
 
 st.subheader("Resumo por ECC")
