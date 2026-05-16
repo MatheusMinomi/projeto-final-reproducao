@@ -1,11 +1,10 @@
 import streamlit as st
 import pandas as pd
 import plotly.express as px
-from glob import glob
 
-# ====================================
+# =========================================
 # CONFIGURAÇÃO
-# ====================================
+# =========================================
 
 st.set_page_config(
     page_title="BI Reprodutivo",
@@ -14,235 +13,161 @@ st.set_page_config(
 )
 
 st.title("🐄 BI REPRODUTIVO")
-st.subheader("Dashboard Interativo de Reprodução")
+st.subheader("Diagnóstico • ECC • Grupo Manejo")
 
-# ====================================
+# =========================================
 # LEITURA DOS ARQUIVOS
-# ====================================
+# =========================================
 
 @st.cache_data
-def carregar_arquivos():
+def carregar_dados():
 
-    # -------------------------
-    # DIAGNOSTICOS
-    # -------------------------
+    diagnostico = pd.read_excel("DIAGNOSTICOS/DIAGNOSTICO.xls")
 
-    arquivos_diag = glob("DIAGNOSTICOS/*.xls*")
+    grupo = pd.read_excel("GRUPOS/GRUPO_MANEJO.xls")
 
-    lista_diag = []
+    medicao = pd.read_excel("MEDICOES/MEDICAO.xls")
 
-    for arq in arquivos_diag:
-
-        df = pd.read_excel(arq)
-
-        df.columns = df.columns.str.strip()
-
-        # Corrigir nome da coluna
-        if 'Estado Diagnóstico' in df.columns:
-            df.rename(
-                columns={'Estado Diagnóstico': 'Estado'},
-                inplace=True
-            )
-
-        lista_diag.append(df)
-
-    diag_df = pd.concat(lista_diag, ignore_index=True)
-
-    # -------------------------
-    # MEDICOES
-    # -------------------------
-
-    arquivos_med = glob("MEDICOES/*.xls*")
-
-    lista_med = []
-
-    for arq in arquivos_med:
-
-        df = pd.read_excel(arq)
-
-        df.columns = df.columns.str.strip()
-
-        lista_med.append(df)
-
-    med_df = pd.concat(lista_med, ignore_index=True)
-
-    # -------------------------
-    # GRUPOS
-    # -------------------------
-
-    arquivos_grupo = glob("GRUPOS/*.xls*")
-
-    lista_grupo = []
-
-    for arq in arquivos_grupo:
-
-        df = pd.read_excel(arq)
-
-        df.columns = df.columns.str.strip()
-
-        # Corrigir nome da coluna grupo
-        if 'Descrição' in df.columns:
-            df.rename(
-                columns={'Descrição': 'Grupo Manejo'},
-                inplace=True
-            )
-
-        lista_grupo.append(df)
-
-    grupo_df = pd.concat(lista_grupo, ignore_index=True)
-
-    return diag_df, med_df, grupo_df
+    return diagnostico, grupo, medicao
 
 
-diag_df, med_df, grupo_df = carregar_arquivos()
+diag_df, grupo_df, med_df = carregar_dados()
 
-# ====================================
+# =========================================
+# PADRONIZAR COLUNAS
+# =========================================
+
+diag_df.columns = diag_df.columns.str.strip()
+grupo_df.columns = grupo_df.columns.str.strip()
+med_df.columns = med_df.columns.str.strip()
+
+# =========================================
 # PADRONIZAR SIGLA
-# ====================================
+# =========================================
 
-diag_df['Sigla Usual'] = (
-    diag_df['Sigla Usual']
-    .fillna('')
+diag_df["Sigla Usual"] = (
+    diag_df["Sigla Usual"]
     .astype(str)
     .str.strip()
     .str.upper()
 )
 
-med_df['Sigla Usual'] = (
-    med_df['Sigla Usual']
-    .fillna('')
+grupo_df["Sigla Usual"] = (
+    grupo_df["Sigla Usual"]
     .astype(str)
     .str.strip()
     .str.upper()
 )
 
-grupo_df['Sigla Usual'] = (
-    grupo_df['Sigla Usual']
-    .fillna('')
+med_df["Sigla Usual"] = (
+    med_df["Sigla Usual"]
     .astype(str)
     .str.strip()
     .str.upper()
 )
 
-# ====================================
-# ECC
-# ====================================
+# =========================================
+# PREPARAR GRUPO MANEJO
+# =========================================
 
-if 'Valor' in med_df.columns:
+grupo_df = grupo_df[
+    ["Sigla Usual", "Descrição"]
+].copy()
 
-    med_df = med_df[
-        ['Sigla Usual', 'Valor']
-    ]
+grupo_df.rename(
+    columns={"Descrição": "Grupo Manejo"},
+    inplace=True
+)
 
-    diag_df = diag_df.merge(
-        med_df,
-        on='Sigla Usual',
-        how='left'
-    )
+# =========================================
+# PREPARAR ECC
+# =========================================
 
-    diag_df.rename(
-        columns={'Valor': 'ECC'},
-        inplace=True
-    )
+med_df = med_df[
+    ["Sigla Usual", "Valor"]
+].copy()
 
-# ====================================
-# GRUPO MANEJO
-# ====================================
+med_df.rename(
+    columns={"Valor": "ECC"},
+    inplace=True
+)
 
-if 'Grupo Manejo' in grupo_df.columns:
-    col_grupo = 'Grupo Manejo'
+# =========================================
+# MERGES
+# =========================================
 
-elif 'Descrição' in grupo_df.columns:
-    col_grupo = 'Descrição'
+df = diag_df.merge(
+    grupo_df,
+    on="Sigla Usual",
+    how="left"
+)
 
-else:
-    col_grupo = None
+df = df.merge(
+    med_df,
+    on="Sigla Usual",
+    how="left"
+)
 
-if col_grupo:
-
-    grupo_df = grupo_df[
-        ['Sigla Usual', col_grupo]
-    ]
-
-    diag_df = diag_df.merge(
-        grupo_df,
-        on='Sigla Usual',
-        how='left'
-    )
-
-    diag_df.rename(
-        columns={col_grupo: 'Grupo Manejo'},
-        inplace=True
-    )
-
-# ====================================
+# =========================================
 # STATUS REPRODUTIVO
-# ====================================
+# =========================================
 
-diag_df['Estado'] = (
-    diag_df['Estado']
-    .fillna('')
+df["Estado"] = (
+    df["Estado"]
+    .fillna("")
     .astype(str)
     .str.upper()
 )
 
-diag_df['Tipo Aborto'] = (
-    diag_df['Tipo Aborto']
-    .fillna('')
+df["Tipo Aborto"] = (
+    df["Tipo Aborto"]
+    .fillna("")
     .astype(str)
     .str.upper()
 )
 
-diag_df['PRENHA'] = (
-    diag_df['Estado']
-    .str.contains('PREN', na=False)
-)
+df["STATUS"] = "OUTROS"
 
-diag_df['VAZIA'] = (
-    diag_df['Estado']
-    .str.contains('VAZ', na=False)
-)
+df.loc[
+    df["Estado"].str.contains("PREN", na=False),
+    "STATUS"
+] = "PRENHA"
 
-diag_df['ABORTO'] = (
-    diag_df['Tipo Aborto']
-    .str.contains('ABORT', na=False)
-)
+df.loc[
+    df["Estado"].str.contains("VAZ", na=False),
+    "STATUS"
+] = "VAZIA"
 
-# ====================================
-# DATAFRAME PRINCIPAL
-# ====================================
+df.loc[
+    df["Tipo Aborto"].str.contains("ABORT", na=False),
+    "STATUS"
+] = "ABORTO"
 
-df = diag_df.copy()
+# =========================================
+# TRATAR VAZIOS
+# =========================================
 
-# ECC
-if 'ECC' not in df.columns:
-    df['ECC'] = 'SEM ECC'
-
-df['ECC'] = (
-    df['ECC']
-    .fillna('SEM ECC')
+df["Grupo Manejo"] = (
+    df["Grupo Manejo"]
+    .fillna("SEM GRUPO")
     .astype(str)
 )
 
-# Grupo Manejo
-if 'Grupo Manejo' not in df.columns:
-    df['Grupo Manejo'] = 'SEM GRUPO'
-
-df['Grupo Manejo'] = (
-    df['Grupo Manejo']
-    .fillna('SEM GRUPO')
+df["ECC"] = (
+    df["ECC"]
+    .fillna("SEM ECC")
     .astype(str)
 )
 
-# ====================================
-# FILTROS
-# ====================================
+# =========================================
+# SIDEBAR
+# =========================================
 
 st.sidebar.header("Filtros")
 
+# Grupo
 lista_grupos = sorted(
-    df['Grupo Manejo']
-    .unique()
+    df["Grupo Manejo"].unique()
 )
 
 filtro_grupo = st.sidebar.multiselect(
@@ -251,9 +176,9 @@ filtro_grupo = st.sidebar.multiselect(
     default=lista_grupos
 )
 
+# ECC
 lista_ecc = sorted(
-    df['ECC']
-    .unique()
+    df["ECC"].unique()
 )
 
 filtro_ecc = st.sidebar.multiselect(
@@ -262,28 +187,50 @@ filtro_ecc = st.sidebar.multiselect(
     default=lista_ecc
 )
 
-# Aplicar filtros
-if filtro_grupo:
-    df = df[
-        df['Grupo Manejo'].isin(filtro_grupo)
-    ]
+# Status
+lista_status = sorted(
+    df["STATUS"].unique()
+)
 
-if filtro_ecc:
-    df = df[
-        df['ECC'].isin(filtro_ecc)
-    ]
+filtro_status = st.sidebar.multiselect(
+    "Status",
+    lista_status,
+    default=lista_status
+)
 
-# ====================================
+# =========================================
+# APLICAR FILTROS
+# =========================================
+
+df = df[
+    df["Grupo Manejo"].isin(filtro_grupo)
+]
+
+df = df[
+    df["ECC"].isin(filtro_ecc)
+]
+
+df = df[
+    df["STATUS"].isin(filtro_status)
+]
+
+# =========================================
 # KPIs
-# ====================================
+# =========================================
 
 total = len(df)
 
-prenha = int(df['PRENHA'].sum())
+prenha = len(
+    df[df["STATUS"] == "PRENHA"]
+)
 
-vazia = int(df['VAZIA'].sum())
+vazia = len(
+    df[df["STATUS"] == "VAZIA"]
+)
 
-aborto = int(df['ABORTO'].sum())
+aborto = len(
+    df[df["STATUS"] == "ABORTO"]
+)
 
 taxa = round(
     (prenha / total) * 100,
@@ -297,41 +244,26 @@ c2.metric("Prenhas", prenha)
 c3.metric("Vazias", vazia)
 c4.metric("Taxa Prenhez %", taxa)
 
-# ====================================
+# =========================================
 # RESUMO POR GRUPO
-# ====================================
+# =========================================
 
 st.subheader("Resumo por Grupo Manejo")
 
 resumo_grupo = (
-    df.groupby('Grupo Manejo')
-    .agg({
-        'PRENHA': 'sum',
-        'VAZIA': 'sum',
-        'ABORTO': 'sum'
-    })
-    .reset_index()
+    df.groupby(
+        ["Grupo Manejo", "STATUS"]
+    )
+    .size()
+    .reset_index(name="TOTAL")
 )
-
-resumo_grupo['TOTAL'] = (
-    resumo_grupo['PRENHA']
-    + resumo_grupo['VAZIA']
-    + resumo_grupo['ABORTO']
-)
-
-st.dataframe(
-    resumo_grupo,
-    use_container_width=True
-)
-
-# Gráfico grupo
 
 fig_grupo = px.bar(
     resumo_grupo,
-    x='Grupo Manejo',
-    y=['PRENHA', 'VAZIA', 'ABORTO'],
-    barmode='group',
-    title='Resultado por Grupo Manejo'
+    x="Grupo Manejo",
+    y="TOTAL",
+    color="STATUS",
+    barmode="group"
 )
 
 st.plotly_chart(
@@ -339,41 +271,26 @@ st.plotly_chart(
     use_container_width=True
 )
 
-# ====================================
+# =========================================
 # RESUMO POR ECC
-# ====================================
+# =========================================
 
 st.subheader("Resumo por ECC")
 
 resumo_ecc = (
-    df.groupby('ECC')
-    .agg({
-        'PRENHA': 'sum',
-        'VAZIA': 'sum',
-        'ABORTO': 'sum'
-    })
-    .reset_index()
+    df.groupby(
+        ["ECC", "STATUS"]
+    )
+    .size()
+    .reset_index(name="TOTAL")
 )
-
-resumo_ecc['TOTAL'] = (
-    resumo_ecc['PRENHA']
-    + resumo_ecc['VAZIA']
-    + resumo_ecc['ABORTO']
-)
-
-st.dataframe(
-    resumo_ecc,
-    use_container_width=True
-)
-
-# gráfico ECC
 
 fig_ecc = px.bar(
     resumo_ecc,
-    x='ECC',
-    y=['PRENHA', 'VAZIA', 'ABORTO'],
-    barmode='group',
-    title='Resultado por ECC'
+    x="ECC",
+    y="TOTAL",
+    color="STATUS",
+    barmode="group"
 )
 
 st.plotly_chart(
@@ -381,9 +298,9 @@ st.plotly_chart(
     use_container_width=True
 )
 
-# ====================================
-# BASE COMPLETA
-# ====================================
+# =========================================
+# TABELA COMPLETA
+# =========================================
 
 st.subheader("Base Completa")
 
