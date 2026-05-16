@@ -650,56 +650,32 @@ with col_graf1:
 
 with col_graf2:
 
-    st.subheader("Resumo por ECC")
+    st.subheader("Distribuição Geral ECC")
 
     resumo_ecc = (
-        df.groupby(
-            ["ECC", "STATUS"]
-        )
+        df.groupby("ECC")
         .size()
         .reset_index(name="TOTAL")
     )
 
-    fig_ecc = px.bar(
+    fig_ecc = px.pie(
         resumo_ecc,
-        y="ECC",
-        x="TOTAL",
-        color="STATUS",
-        orientation="h",
-        barmode="group",
-        color_discrete_map={
-            "PRENHA": "#16a34a",
-            "VAZIA": "#dc2626",
-            "ABORTO": "#f59e0b"
-        },
-        height=850
+        names="ECC",
+        values="TOTAL",
+        hole=0.55
     )
 
     fig_ecc.update_traces(
-        width=0.8
+        textinfo="percent+label",
+        textfont_size=18
     )
 
     fig_ecc.update_layout(
+        height=700,
 
         font=dict(
-            size=16,
+            size=18,
             color="black"
-        ),
-
-        yaxis=dict(
-            title="ECC",
-            tickfont=dict(
-                size=18,
-                color="black"
-            )
-        ),
-
-        xaxis=dict(
-            title="Quantidade",
-            tickfont=dict(
-                size=18,
-                color="black"
-            )
         ),
 
         legend=dict(
@@ -713,6 +689,7 @@ with col_graf2:
         fig_ecc,
         use_container_width=True
     )
+
 
 
 
