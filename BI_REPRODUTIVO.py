@@ -413,8 +413,6 @@ with col1:
         background-color:#f8fafc;
         border-left:8px solid #2563eb;
         padding:18px;
-
-;
         border-radius:18px;
         box-shadow:0 2px 8px rgba(0,0,0,0.08);
     ">
@@ -436,6 +434,7 @@ with col1:
 
     </div>
     """, unsafe_allow_html=True)
+
 
 with col2:
 
