@@ -209,8 +209,17 @@ df["Grupo Manejo"] = (
 # PREPARAR ECC
 # =========================================
 
+# localizar coluna do ECC
+if "Valor" in med_df.columns:
+    col_ecc = "Valor"
+
+else:
+
+    # pega segunda coluna automaticamente
+    col_ecc = med_df.columns[1]
+
 med_df = med_df[
-    ["Sigla Usual", "Valor"]
+    ["Sigla Usual", col_ecc]
 ].copy()
 
 # limpar sigla
@@ -223,9 +232,9 @@ med_df["Sigla Usual"] = (
     .str.replace(".0", "", regex=False)
 )
 
-# limpar valor ECC
-med_df["Valor"] = (
-    med_df["Valor"]
+# limpar ECC
+med_df[col_ecc] = (
+    med_df[col_ecc]
     .fillna("")
     .astype(str)
     .str.strip()
@@ -233,7 +242,7 @@ med_df["Valor"] = (
 
 # remover vazios
 med_df = med_df[
-    med_df["Valor"] != ""
+    med_df[col_ecc] != ""
 ]
 
 # remover duplicados
@@ -243,9 +252,10 @@ med_df = med_df.drop_duplicates(
 
 # renomear
 med_df.rename(
-    columns={"Valor": "ECC"},
+    columns={col_ecc: "ECC"},
     inplace=True
 )
+
 
 
 
