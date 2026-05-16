@@ -191,11 +191,19 @@ df["Grupo Manejo"] = (
     .astype(str)
 )
 
+# =========================================
+# TRATAR ECC
+# =========================================
+
+if "ECC" not in df.columns:
+    df["ECC"] = "SEM ECC"
+
 df["ECC"] = (
     df["ECC"]
     .fillna("SEM ECC")
     .astype(str)
 )
+
 
 # =========================================
 # SIDEBAR
