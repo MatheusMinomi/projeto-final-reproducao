@@ -17,7 +17,7 @@ st.title("🐄 BI REPRODUTIVO")
 st.subheader("Dashboard Interativo de Reprodução")
 
 # ====================================
-# FUNÇÃO PARA LER ARQUIVOS
+# FUNÇÃO LEITURA
 # ====================================
 
 @st.cache_data
@@ -32,11 +32,15 @@ def carregar_arquivos():
     lista_diag = []
 
     for arq in arquivos_diag:
+
         df = pd.read_excel(arq)
 
-        # padronizar nome coluna status
+        # Estado Diagnóstico -> Estado
         if 'Estado Diagnóstico' in df.columns:
-            df.rename(columns={'Estado Diagnóstico': 'Estado'}, inplace=True)
+            df.rename(
+                columns={'Estado Diagnóstico': 'Estado'},
+                inplace=True
+            )
 
         lista_diag.append(df)
 
@@ -51,7 +55,9 @@ def carregar_arquivos():
     lista_med = []
 
     for arq in arquivos_med:
+
         df = pd.read_excel(arq)
+
         lista_med.append(df)
 
     med_df = pd.concat(lista_med, ignore_index=True)
@@ -65,11 +71,15 @@ def carregar_arquivos():
     lista_grupo = []
 
     for arq in arquivos_grupo:
+
         df = pd.read_excel(arq)
 
-        # padronizar nome grupo
+        # padronizar coluna grupo
         if 'Descrição' in df.columns:
-            df.rename(columns={'Descrição': 'Grupo Manejo'}, inplace=True)
+            df.rename(
+                columns={'Descrição': 'Grupo Manejo'},
+                inplace=True
+            )
 
         lista_grupo.append(df)
 
@@ -83,6 +93,10 @@ diag_df, med_df, grupo_df = carregar_arquivos()
 # ====================================
 # PADRONIZAR SIGLAS
 # ====================================
+
+diag_df.columns = diag_df.columns.str.strip()
+med_df.columns = med_df.columns.str.strip()
+grupo_df.columns = grupo_df.columns.str.strip()
 
 diag_df['Sigla Usual'] = (
     diag_df['Sigla Usual']
@@ -106,13 +120,14 @@ grupo_df['Sigla Usual'] = (
 )
 
 # ====================================
-# MERGES
+# ECC
 # ====================================
 
-# ECC
 if 'Valor' in med_df.columns:
 
-    med_df = med_df[['Sigla Usual', 'Valor']].drop_duplicates()
+    med_df = med_df[
+        ['Sigla Usual', 'Valor']
+    ].drop_duplicates()
 
     diag_df = diag_df.merge(
         med_df,
@@ -120,17 +135,40 @@ if 'Valor' in med_df.columns:
         how='left'
     )
 
-    diag_df.rename(columns={'Valor': 'ECC'}, inplace=True)
+    diag_df.rename(
+        columns={'Valor': 'ECC'},
+        inplace=True
+    )
 
-# Grupo Manejo
+# ====================================
+# GRUPO MANEJO
+# ====================================
+
+# detectar nome correto da coluna
+col_grupo = None
+
 if 'Grupo Manejo' in grupo_df.columns:
+    col_grupo = 'Grupo Manejo'
 
-    grupo_df = grupo_df[['Sigla Usual', 'Grupo Manejo']].drop_duplicates()
+elif 'Descrição' in grupo_df.columns:
+    col_grupo = 'Descrição'
+
+# merge grupo
+if col_grupo is not None:
+
+    grupo_df = grupo_df[
+        ['Sigla Usual', col_grupo]
+    ].drop_duplicates()
 
     diag_df = diag_df.merge(
         grupo_df,
         on='Sigla Usual',
         how='left'
+    )
+
+    diag_df.rename(
+        columns={col_grupo: 'Grupo Manejo'},
+        inplace=True
     )
 
 # ====================================
@@ -151,11 +189,20 @@ diag_df['Tipo Aborto'] = (
     .str.upper()
 )
 
-diag_df['PRENHA'] = diag_df['Estado'].str.contains('PREN', na=False)
+diag_df['PRENHA'] = (
+    diag_df['Estado']
+    .str.contains('PREN', na=False)
+)
 
-diag_df['VAZIA'] = diag_df['Estado'].str.contains('VAZ', na=False)
+diag_df['VAZIA'] = (
+    diag_df['Estado']
+    .str.contains('VAZ', na=False)
+)
 
-diag_df['ABORTO'] = diag_df['Tipo Aborto'].str.contains('ABORT', na=False)
+diag_df['ABORTO'] = (
+    diag_df['Tipo Aborto']
+    .str.contains('ABORT', na=False)
+)
 
 # ====================================
 # DATAFRAME PRINCIPAL
@@ -163,27 +210,32 @@ diag_df['ABORTO'] = diag_df['Tipo Aborto'].str.contains('ABORT', na=False)
 
 df = diag_df.copy()
 
-# corrigir colunas vazias
-
 if 'Grupo Manejo' not in df.columns:
     df['Grupo Manejo'] = 'SEM GRUPO'
 
-df['Grupo Manejo'] = df['Grupo Manejo'].fillna('SEM GRUPO')
+df['Grupo Manejo'] = (
+    df['Grupo Manejo']
+    .fillna('SEM GRUPO')
+    .astype(str)
+)
 
 if 'ECC' not in df.columns:
     df['ECC'] = 'SEM ECC'
 
-df['ECC'] = df['ECC'].fillna('SEM ECC')
+df['ECC'] = (
+    df['ECC']
+    .fillna('SEM ECC')
+    .astype(str)
+)
 
 # ====================================
-# SIDEBAR
+# FILTROS
 # ====================================
 
 st.sidebar.header("Filtros")
 
 lista_grupos = sorted(
     df['Grupo Manejo']
-    .astype(str)
     .unique()
 )
 
@@ -195,7 +247,6 @@ filtro_grupo = st.sidebar.multiselect(
 
 lista_ecc = sorted(
     df['ECC']
-    .astype(str)
     .unique()
 )
 
@@ -205,15 +256,17 @@ filtro_ecc = st.sidebar.multiselect(
     default=lista_ecc
 )
 
-# ====================================
-# FILTROS
-# ====================================
+# aplicar filtros
 
 if filtro_grupo:
-    df = df[df['Grupo Manejo'].astype(str).isin(filtro_grupo)]
+    df = df[
+        df['Grupo Manejo'].isin(filtro_grupo)
+    ]
 
 if filtro_ecc:
-    df = df[df['ECC'].astype(str).isin(filtro_ecc)]
+    df = df[
+        df['ECC'].isin(filtro_ecc)
+    ]
 
 # ====================================
 # KPIs
@@ -227,14 +280,17 @@ vazia = int(df['VAZIA'].sum())
 
 aborto = int(df['ABORTO'].sum())
 
-taxa = round((prenha / total) * 100, 1) if total > 0 else 0
+taxa = round(
+    (prenha / total) * 100,
+    1
+) if total > 0 else 0
 
-col1, col2, col3, col4 = st.columns(4)
+c1, c2, c3, c4 = st.columns(4)
 
-col1.metric("Total", total)
-col2.metric("Prenhas", prenha)
-col3.metric("Vazias", vazia)
-col4.metric("Taxa Prenhez %", taxa)
+c1.metric("Total", total)
+c2.metric("Prenhas", prenha)
+c3.metric("Vazias", vazia)
+c4.metric("Taxa Prenhez %", taxa)
 
 # ====================================
 # RESUMO GRUPO
@@ -263,16 +319,14 @@ st.dataframe(
     use_container_width=True
 )
 
-# ====================================
-# GRAFICO GRUPO
-# ====================================
+# gráfico grupo
 
 fig_grupo = px.bar(
     resumo_grupo,
     x='Grupo Manejo',
     y=['PRENHA', 'VAZIA', 'ABORTO'],
     barmode='group',
-    title='Resultado por Grupo'
+    title='Resultado por Grupo Manejo'
 )
 
 st.plotly_chart(
@@ -307,9 +361,7 @@ st.dataframe(
     use_container_width=True
 )
 
-# ====================================
-# GRAFICO ECC
-# ====================================
+# gráfico ECC
 
 fig_ecc = px.bar(
     resumo_ecc,
