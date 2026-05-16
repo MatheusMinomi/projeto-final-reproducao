@@ -149,7 +149,7 @@ st.markdown("### Dashboard Interativo de Reprodução")
 st.sidebar.header("Filtros")
 
 # preencher vazios antes dos filtros
-
+df = diag_df.copy()
 df['Grupo Manejo'] = df['Grupo Manejo'].fillna('SEM GRUPO')
 df['ECC'] = df['ECC'].fillna('SEM ECC')
 lista_grupos = sorted(
