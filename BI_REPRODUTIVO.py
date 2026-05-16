@@ -198,14 +198,48 @@ df["Grupo Manejo"] = (
 # TRATAR ECC
 # =========================================
 
-if "ECC" not in df.columns:
-    df["ECC"] = "SEM ECC"
+# =========================================
+# PREPARAR ECC
+# =========================================
 
-df["ECC"] = (
-    df["ECC"]
-    .fillna("SEM ECC")
+med_df = med_df[
+    ["Sigla Usual", "Valor"]
+].copy()
+
+# limpar sigla
+med_df["Sigla Usual"] = (
+    med_df["Sigla Usual"]
+    .fillna("")
     .astype(str)
+    .str.strip()
+    .str.upper()
+    .str.replace(".0", "", regex=False)
 )
+
+# limpar valor ECC
+med_df["Valor"] = (
+    med_df["Valor"]
+    .fillna("")
+    .astype(str)
+    .str.strip()
+)
+
+# remover vazios
+med_df = med_df[
+    med_df["Valor"] != ""
+]
+
+# remover duplicados
+med_df = med_df.drop_duplicates(
+    subset=["Sigla Usual"]
+)
+
+# renomear
+med_df.rename(
+    columns={"Valor": "ECC"},
+    inplace=True
+)
+
 
 
 # =========================================
