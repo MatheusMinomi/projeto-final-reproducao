@@ -454,6 +454,47 @@ st.plotly_chart(
 )
 
 # =========================================
+# TABELA RESUMO POR ECC
+# =========================================
+
+resumo_tabela_ecc = (
+    df.groupby(["ECC", "STATUS"])
+    .size()
+    .unstack(fill_value=0)
+)
+
+# garantir colunas
+for col in ["PRENHA", "VAZIA", "ABORTO"]:
+
+    if col not in resumo_tabela_ecc.columns:
+        resumo_tabela_ecc[col] = 0
+
+# total
+resumo_tabela_ecc["TOTAL"] = (
+    resumo_tabela_ecc["PRENHA"]
+    + resumo_tabela_ecc["VAZIA"]
+    + resumo_tabela_ecc["ABORTO"]
+)
+
+# taxa prenhez
+resumo_tabela_ecc["TAXA PRENHEZ %"] = (
+    resumo_tabela_ecc["PRENHA"]
+    / resumo_tabela_ecc["TOTAL"]
+    * 100
+).round(1)
+
+# organizar
+resumo_tabela_ecc = resumo_tabela_ecc.reset_index()
+
+# exibir
+st.subheader("Resumo Reprodutivo por ECC")
+
+st.dataframe(
+    resumo_tabela_ecc,
+    use_container_width=True
+)
+
+# =========================================
 # RESUMO POR ECC
 # =========================================
 
