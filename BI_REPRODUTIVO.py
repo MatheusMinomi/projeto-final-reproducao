@@ -682,11 +682,10 @@ fig_ecc.update_layout(
     legend_title="Status"
 )
 
-
-    st.plotly_chart(
-        fig_ecc,
-        use_container_width=True
-    )
+st.plotly_chart(
+    fig_ecc,
+    use_container_width=True
+)
 
 
 # =========================================
