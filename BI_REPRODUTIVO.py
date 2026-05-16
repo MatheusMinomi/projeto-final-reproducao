@@ -4,7 +4,7 @@ import plotly.express as px
 from glob import glob
 
 # ====================================
-# CONFIG
+# CONFIGURAÇÃO
 # ====================================
 
 st.set_page_config(
@@ -17,15 +17,15 @@ st.title("🐄 BI REPRODUTIVO")
 st.subheader("Dashboard Interativo de Reprodução")
 
 # ====================================
-# FUNÇÃO LEITURA
+# LEITURA DOS ARQUIVOS
 # ====================================
 
 @st.cache_data
 def carregar_arquivos():
 
-    # -----------------------------
-    # DIAGNOSTICOS
-    # -----------------------------
+    # -------------------------
+    # DIAGNOSTICO
+    # -------------------------
 
     arquivos_diag = glob("DIAGNOSTICOS/*.xls*")
 
@@ -35,7 +35,9 @@ def carregar_arquivos():
 
         df = pd.read_excel(arq)
 
-        # Estado Diagnóstico -> Estado
+        df.columns = df.columns.str.strip()
+
+        # corrigir nome coluna estado
         if 'Estado Diagnóstico' in df.columns:
             df.rename(
                 columns={'Estado Diagnóstico': 'Estado'},
@@ -46,9 +48,9 @@ def carregar_arquivos():
 
     diag_df = pd.concat(lista_diag, ignore_index=True)
 
-    # -----------------------------
-    # MEDICOES
-    # -----------------------------
+    # -------------------------
+    # MEDICAO
+    # -------------------------
 
     arquivos_med = glob("MEDICOES/*.xls*")
 
@@ -58,13 +60,15 @@ def carregar_arquivos():
 
         df = pd.read_excel(arq)
 
+        df.columns = df.columns.str.strip()
+
         lista_med.append(df)
 
     med_df = pd.concat(lista_med, ignore_index=True)
 
-    # -----------------------------
-    # GRUPOS
-    # -----------------------------
+    # -------------------------
+    # GRUPO MANEJO
+    # -------------------------
 
     arquivos_grupo = glob("GRUPOS/*.xls*")
 
@@ -74,12 +78,7 @@ def carregar_arquivos():
 
         df = pd.read_excel(arq)
 
-        # padronizar coluna grupo
-        if 'Descrição' in df.columns:
-            df.rename(
-                columns={'Descrição': 'Grupo Manejo'},
-                inplace=True
-            )
+        df.columns = df.columns.str.strip()
 
         lista_grupo.append(df)
 
@@ -91,15 +90,12 @@ def carregar_arquivos():
 diag_df, med_df, grupo_df = carregar_arquivos()
 
 # ====================================
-# PADRONIZAR SIGLAS
+# PADRONIZAR SIGLA
 # ====================================
-
-diag_df.columns = diag_df.columns.str.strip()
-med_df.columns = med_df.columns.str.strip()
-grupo_df.columns = grupo_df.columns.str.strip()
 
 diag_df['Sigla Usual'] = (
     diag_df['Sigla Usual']
+    .fillna('')
     .astype(str)
     .str.strip()
     .str.upper()
@@ -107,6 +103,7 @@ diag_df['Sigla Usual'] = (
 
 med_df['Sigla Usual'] = (
     med_df['Sigla Usual']
+    .fillna('')
     .astype(str)
     .str.strip()
     .str.upper()
@@ -114,6 +111,7 @@ med_df['Sigla Usual'] = (
 
 grupo_df['Sigla Usual'] = (
     grupo_df['Sigla Usual']
+    .fillna('')
     .astype(str)
     .str.strip()
     .str.upper()
@@ -127,7 +125,9 @@ if 'Valor' in med_df.columns:
 
     med_df = med_df[
         ['Sigla Usual', 'Valor']
-    ].drop_duplicates()
+    ].drop_duplicates(
+        subset=['Sigla Usual']
+    )
 
     diag_df = diag_df.merge(
         med_df,
@@ -144,7 +144,7 @@ if 'Valor' in med_df.columns:
 # GRUPO MANEJO
 # ====================================
 
-# localizar coluna grupo
+# localizar coluna correta
 if 'Grupo Manejo' in grupo_df.columns:
     col_grupo = 'Grupo Manejo'
 
@@ -154,25 +154,17 @@ elif 'Descrição' in grupo_df.columns:
 else:
     col_grupo = None
 
-# padronizar siglas
-grupo_df['Sigla Usual'] = (
-    grupo_df['Sigla Usual']
-    .fillna('')
-    .astype(str)
-    .str.strip()
-    .str.upper()
-)
-
-# remover duplicidade
-grupo_df = grupo_df.drop_duplicates(
-    subset=['Sigla Usual']
-)
-
-# merge
+# merge grupo
 if col_grupo:
 
+    grupo_df = grupo_df[
+        ['Sigla Usual', col_grupo]
+    ].drop_duplicates(
+        subset=['Sigla Usual']
+    )
+
     diag_df = diag_df.merge(
-        grupo_df[['Sigla Usual', col_grupo]],
+        grupo_df,
         on='Sigla Usual',
         how='left'
     )
@@ -183,7 +175,7 @@ if col_grupo:
     )
 
 # ====================================
-# STATUS
+# STATUS REPRODUTIVO
 # ====================================
 
 diag_df['Estado'] = (
@@ -221,21 +213,23 @@ diag_df['ABORTO'] = (
 
 df = diag_df.copy()
 
-if 'Grupo Manejo' not in df.columns:
-    df['Grupo Manejo'] = 'SEM GRUPO'
-
-df['Grupo Manejo'] = (
-    df['Grupo Manejo']
-    .fillna('SEM GRUPO')
-    .astype(str)
-)
-
+# ECC
 if 'ECC' not in df.columns:
     df['ECC'] = 'SEM ECC'
 
 df['ECC'] = (
     df['ECC']
     .fillna('SEM ECC')
+    .astype(str)
+)
+
+# Grupo Manejo
+if 'Grupo Manejo' not in df.columns:
+    df['Grupo Manejo'] = 'SEM GRUPO'
+
+df['Grupo Manejo'] = (
+    df['Grupo Manejo']
+    .fillna('SEM GRUPO')
     .astype(str)
 )
 
@@ -268,7 +262,6 @@ filtro_ecc = st.sidebar.multiselect(
 )
 
 # aplicar filtros
-
 if filtro_grupo:
     df = df[
         df['Grupo Manejo'].isin(filtro_grupo)
