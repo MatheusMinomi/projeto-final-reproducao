@@ -660,32 +660,60 @@ with col_graf2:
         .reset_index(name="TOTAL")
     )
 
-    
-fig_ecc = px.bar(
-    resumo_ecc,
-    y="ECC",
-    x="TOTAL",
-    color="STATUS",
-    orientation="h",
-    barmode="group",
-    color_discrete_map={
-        "PRENHA": "#16a34a",
-        "VAZIA": "#dc2626",
-        "ABORTO": "#f59e0b"
-    },
-    height=600
-)
+    fig_ecc = px.bar(
+        resumo_ecc,
+        y="ECC",
+        x="TOTAL",
+        color="STATUS",
+        orientation="h",
+        barmode="group",
+        color_discrete_map={
+            "PRENHA": "#16a34a",
+            "VAZIA": "#dc2626",
+            "ABORTO": "#f59e0b"
+        },
+        height=850
+    )
 
-fig_ecc.update_layout(
-    yaxis_title="ECC",
-    xaxis_title="Quantidade",
-    legend_title="Status"
-)
+    fig_ecc.update_traces(
+        width=0.8
+    )
 
-st.plotly_chart(
-    fig_ecc,
-    use_container_width=True
-)
+    fig_ecc.update_layout(
+
+        font=dict(
+            size=16,
+            color="black"
+        ),
+
+        yaxis=dict(
+            title="ECC",
+            tickfont=dict(
+                size=18,
+                color="black"
+            )
+        ),
+
+        xaxis=dict(
+            title="Quantidade",
+            tickfont=dict(
+                size=18,
+                color="black"
+            )
+        ),
+
+        legend=dict(
+            font=dict(
+                size=16
+            )
+        )
+    )
+
+    st.plotly_chart(
+        fig_ecc,
+        use_container_width=True
+    )
+
 
 
 # =========================================
