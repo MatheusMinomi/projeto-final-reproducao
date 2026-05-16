@@ -108,11 +108,11 @@ df = diag_df.merge(
     how="left"
 )
 
-df = df.merge(
-    med_df,
-    on="Sigla Usual",
-    how="left"
+# remover animais duplicados
+df = df.drop_duplicates(
+    subset=["Sigla Usual"]
 )
+
 
 # =========================================
 # STATUS REPRODUTIVO
