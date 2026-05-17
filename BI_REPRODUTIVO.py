@@ -431,7 +431,7 @@ with col1:
 
     <h3 style="
         color:#2563eb;
-        margin-bottom:10px;
+        margin-bottom:4px;
     ">
         TOTAL
     </h3>
@@ -475,7 +475,7 @@ with col2:
 
     <h3 style="
         color:#16a34a;
-        margin-bottom:10px;
+        margin-bottom:4px;
     ">
         PRENHAS
     </h3>
@@ -518,7 +518,7 @@ with col3:
 
     <h3 style="
         color:#dc2626;
-        margin-bottom:10px;
+        margin-bottom:4px;
     ">
         VAZIAS
     </h3>
@@ -549,7 +549,7 @@ st.markdown(f"""
 <div style="border:2px solid #9333ea;
 border-radius:20px;
 padding:14px 18px;
-margin-bottom:20px;">
+margin-bottom:18px;">
 
 <div style="display:flex;
 justify-content:space-around;
