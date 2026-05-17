@@ -15,7 +15,7 @@ st.set_page_config(
 
 st.title("🐄 BI REPRODUTIVO")
 st.subheader("Diagnóstico • ECC • Grupo Manejo")
-if st.button("📄 Exportar PDF"):
+
 st.markdown("""
 <a href="javascript:window.print();" 
 style="
