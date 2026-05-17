@@ -416,7 +416,7 @@ with col1:
     st.markdown(f"""
     <div style="
         background:linear-gradient(135deg,#eff6ff,#dbeafe);
-        padding:20px;
+        padding:14px 18px;
         border-radius:22px;
         box-shadow:0 4px 14px rgba(0,0,0,0.08);
         transition:0.3s;
@@ -424,7 +424,7 @@ with col1:
     ">
 
     <div style="
-        font-size:28px;
+        font-size:22px;
     ">
         🐄
     </div>
@@ -437,7 +437,7 @@ with col1:
     </h3>
 
     <h1 style="
-        font-size:52px;
+        font-size:40px;
         color:#1e293b;
         margin-bottom:5px;
     ">
@@ -461,14 +461,14 @@ with col2:
     st.markdown(f"""
     <div style="
         background:linear-gradient(135deg,#f0fdf4,#dcfce7);
-        padding:20px;
+        padding:14px 18px;
         border-radius:22px;
         box-shadow:0 4px 14px rgba(0,0,0,0.08);
         border-top:6px solid #16a34a;
     ">
 
     <div style="
-        font-size:28px;
+        font-size:22px;
     ">
         ✅
     </div>
@@ -481,7 +481,7 @@ with col2:
     </h3>
 
     <h1 style="
-        font-size:52px;
+        font-size:40px;
         color:#166534;
         margin-bottom:5px;
     ">
@@ -504,14 +504,14 @@ with col3:
     st.markdown(f"""
     <div style="
         background:linear-gradient(135deg,#fef2f2,#fee2e2);
-        padding:20px;
+        padding:14px 18px;
         border-radius:22px;
         box-shadow:0 4px 14px rgba(0,0,0,0.08);
         border-top:6px solid #dc2626;
     ">
 
     <div style="
-        font-size:28px;
+        font-size:22px;
     ">
         ❌
     </div>
@@ -524,7 +524,7 @@ with col3:
     </h3>
 
     <h1 style="
-        font-size:52px;
+        font-size:40px;
         color:#991b1b;
         margin-bottom:5px;
     ">
@@ -548,7 +548,7 @@ with col3:
 st.markdown(f"""
 <div style="border:2px solid #9333ea;
 border-radius:20px;
-padding:20px;
+padding:14px 18px;
 margin-bottom:20px;">
 
 <div style="display:flex;
@@ -567,7 +567,7 @@ color:#6b21a8;">
 </div>
 
 <p style="color:red;
-font-size:18px;">
+font-size:40px;">
 {diferenca} p.p. vs 24/25
 </p>
 </div>
