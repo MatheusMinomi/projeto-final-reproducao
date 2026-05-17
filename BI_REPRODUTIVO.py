@@ -16,19 +16,7 @@ st.set_page_config(
 st.title("🐄 BI REPRODUTIVO")
 st.subheader("Diagnóstico • ECC • Grupo Manejo")
 
-st.markdown("""
-<a href="javascript:window.print();" 
-style="
-    background-color:#2563eb;
-    color:white;
-    padding:10px 20px;
-    border-radius:10px;
-    text-decoration:none;
-    font-weight:bold;
-">
-📄 Exportar PDF
-</a>
-""", unsafe_allow_html=True)
+if st.button("📄 Exportar PDF"): components.html( """ <script> window.parent.print(); </script> """, height=0, )
 
 
 
