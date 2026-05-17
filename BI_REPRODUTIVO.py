@@ -415,25 +415,39 @@ with col1:
 
     st.markdown(f"""
     <div style="
-        background-color:#f8fafc;
-        border-left:8px solid #2563eb;
-        padding:18px;
-        border-radius:18px;
-        box-shadow:0 2px 8px rgba(0,0,0,0.08);
+        background:linear-gradient(135deg,#eff6ff,#dbeafe);
+        padding:20px;
+        border-radius:22px;
+        box-shadow:0 4px 14px rgba(0,0,0,0.08);
+        transition:0.3s;
+        border-top:6px solid #2563eb;
     ">
 
-    <h3 style="color:#2563eb;">
+    <div style="
+        font-size:28px;
+    ">
+        🐄
+    </div>
+
+    <h3 style="
+        color:#2563eb;
+        margin-bottom:10px;
+    ">
         TOTAL
     </h3>
 
     <h1 style="
-        font-size:42px;
+        font-size:52px;
         color:#1e293b;
+        margin-bottom:5px;
     ">
         {total}
     </h1>
 
-    <p>
+    <p style="
+        color:#475569;
+        font-size:15px;
+    ">
         animais diagnosticados
     </p>
 
@@ -441,63 +455,92 @@ with col1:
     """, unsafe_allow_html=True)
 
 
+
 with col2:
 
     st.markdown(f"""
     <div style="
-        background-color:#f0fdf4;
-        border-left:8px solid #16a34a;
-        padding:25px;
-        border-radius:18px;
-        box-shadow:0 2px 8px rgba(0,0,0,0.08);
+        background:linear-gradient(135deg,#f0fdf4,#dcfce7);
+        padding:20px;
+        border-radius:22px;
+        box-shadow:0 4px 14px rgba(0,0,0,0.08);
+        border-top:6px solid #16a34a;
     ">
 
-    <h3 style="color:#16a34a;">
+    <div style="
+        font-size:28px;
+    ">
+        ✅
+    </div>
+
+    <h3 style="
+        color:#16a34a;
+        margin-bottom:10px;
+    ">
         PRENHAS
     </h3>
 
     <h1 style="
-        font-size:50px;
+        font-size:52px;
         color:#166534;
+        margin-bottom:5px;
     ">
         {prenha}
     </h1>
 
-    <p>
+    <p style="
+        color:#475569;
+        font-size:15px;
+    ">
         diagnósticos positivos
     </p>
 
     </div>
     """, unsafe_allow_html=True)
 
+
 with col3:
 
     st.markdown(f"""
     <div style="
-        background-color:#fef2f2;
-        border-left:8px solid #dc2626;
-        padding:25px;
-        border-radius:18px;
-        box-shadow:0 2px 8px rgba(0,0,0,0.08);
+        background:linear-gradient(135deg,#fef2f2,#fee2e2);
+        padding:20px;
+        border-radius:22px;
+        box-shadow:0 4px 14px rgba(0,0,0,0.08);
+        border-top:6px solid #dc2626;
     ">
 
-    <h3 style="color:#dc2626;">
+    <div style="
+        font-size:28px;
+    ">
+        ❌
+    </div>
+
+    <h3 style="
+        color:#dc2626;
+        margin-bottom:10px;
+    ">
         VAZIAS
     </h3>
 
     <h1 style="
-        font-size:50px;
+        font-size:52px;
         color:#991b1b;
+        margin-bottom:5px;
     ">
         {vazia}
     </h1>
 
-    <p>
+    <p style="
+        color:#475569;
+        font-size:15px;
+    ">
         diagnósticos negativos
     </p>
 
     </div>
     """, unsafe_allow_html=True)
+
 
 
 # CARD EXECUTIVO TAXA PRENHEZ
