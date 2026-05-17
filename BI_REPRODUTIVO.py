@@ -1,3 +1,4 @@
+import streamlit.components.v1 as components
 import streamlit as st
 import pandas as pd
 import plotly.express as px
@@ -14,6 +15,17 @@ st.set_page_config(
 
 st.title("🐄 BI REPRODUTIVO")
 st.subheader("Diagnóstico • ECC • Grupo Manejo")
+if st.button("📄 Exportar PDF"):
+
+    components.html(
+        """
+        <script>
+            window.print();
+        </script>
+        """,
+        height=0,
+    )
+
 
 # =========================================
 # LEITURA DOS ARQUIVOS
