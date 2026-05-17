@@ -24,20 +24,48 @@ if st.button("📄 Exportar PDF"): components.html( """ <script> window.parent.p
 # LEITURA DOS ARQUIVOS
 # =========================================
 
-@st.cache_data(ttl=0)
 
-def carregar_dados():
+# =========================================
+# UPLOAD DOS ARQUIVOS
+# =========================================
 
-    diagnostico = pd.read_excel("DIAGNOSTICOS/DIAGNOSTICO.xls")
+st.sidebar.header("Upload Arquivos")
 
-    grupo = pd.read_excel("GRUPOS/GRUPO_MANEJO.xls")
+arquivo_diag = st.sidebar.file_uploader(
+    "DIAGNÓSTICO",
+    type=["xls", "xlsx"]
+)
 
-    medicao = pd.read_excel("MEDICOES/MEDICAO.xls")
+arquivo_grupo = st.sidebar.file_uploader(
+    "GRUPO MANEJO",
+    type=["xls", "xlsx"]
+)
 
-    return diagnostico, grupo, medicao
+arquivo_med = st.sidebar.file_uploader(
+    "MEDIÇÃO ECC",
+    type=["xls", "xlsx"]
+)
 
+# validar uploads
+if (
+    arquivo_diag is None
+    or arquivo_grupo is None
+    or arquivo_med is None
+):
 
-diag_df, grupo_df, med_df = carregar_dados()
+    st.warning(
+        "Faça upload dos 3 arquivos para carregar o dashboard."
+    )
+
+    st.stop()
+
+# leitura arquivos
+diag_df = pd.read_excel(arquivo_diag)
+
+grupo_df = pd.read_excel(arquivo_grupo)
+
+med_df = pd.read_excel(arquivo_med)
+
 
 # =========================================
 # PADRONIZAR COLUNAS
